@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About — Lagos Broadsheet | LASUBEB Digital Examination Tool</title>
+<meta name="description" content="Learn about Lagos Broadsheet, the free digital broadsheet tool built for LASUBEB teachers in Lagos State primary and pre-primary schools.">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Outfit',sans-serif;background:#f9f2f1;color:#2c0f0d;}
+nav{background:linear-gradient(135deg,#c0392b,#7b1a14);padding:14px 32px;display:flex;align-items:center;gap:16px;box-shadow:0 4px 20px rgba(192,57,43,.4);}
+.nav-logo{font-size:24px;}
+.nav-title{color:#fff;font-weight:800;font-size:1rem;}
+.nav-sub{color:rgba(255,255,255,.7);font-size:.7rem;}
+.nav-links{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;}
+.nav-links a{color:rgba(255,255,255,.85);font-size:.8rem;font-weight:600;text-decoration:none;padding:6px 12px;border-radius:7px;border:1px solid rgba(255,255,255,.3);}
+.nav-links a:hover{background:rgba(255,255,255,.15);}
+.nav-links .btn-cta{background:#fff;color:#c0392b;border:none;border-radius:8px;padding:7px 16px;font-family:'Outfit',sans-serif;font-size:.83rem;font-weight:800;cursor:pointer;text-decoration:none;}
+.hero{background:linear-gradient(160deg,#fdf2f1,#fff);padding:56px 32px 40px;text-align:center;}
+.hero h1{font-size:1.8rem;font-weight:800;color:#7b1a14;margin-bottom:12px;}
+.hero p{font-size:.95rem;color:#5a2018;max-width:600px;margin:0 auto;line-height:1.7;}
+.content{max-width:800px;margin:0 auto;padding:48px 32px;}
+.content h2{font-size:1.2rem;font-weight:800;color:#7b1a14;margin:32px 0 12px;}
+.content p{font-size:.88rem;color:#3a1008;line-height:1.8;margin-bottom:14px;}
+.content ul{padding-left:20px;margin-bottom:14px;}
+.content ul li{font-size:.88rem;color:#3a1008;line-height:1.8;margin-bottom:6px;}
+.highlight{background:#fdf2f1;border-left:4px solid #c0392b;border-radius:0 10px 10px 0;padding:16px 20px;margin:20px 0;}
+.highlight p{margin:0;font-weight:500;}
+.cta-box{background:linear-gradient(135deg,#c0392b,#7b1a14);border-radius:16px;padding:36px;text-align:center;margin:40px 0;}
+.cta-box h3{color:#fff;font-size:1.2rem;font-weight:800;margin-bottom:10px;}
+.cta-box p{color:rgba(255,255,255,.8);font-size:.85rem;margin-bottom:20px;}
+.cta-box a{background:#fff;color:#c0392b;border-radius:9px;padding:12px 32px;font-family:'Outfit',sans-serif;font-size:.9rem;font-weight:800;text-decoration:none;display:inline-block;}
+footer{background:#1a0a09;color:rgba(255,255,255,.6);padding:24px 32px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;font-size:.75rem;}
+footer a{color:rgba(255,255,255,.6);text-decoration:none;}
+footer a:hover{color:#fff;}
+@media(max-width:600px){.hero h1{font-size:1.3rem;}.nav-links{display:none;}.content{padding:32px 16px;}}
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="nav-logo">🏫</span>
+  <div><div class="nav-title">Lagos Broadsheet</div><div class="nav-sub">LASUBEB Digital Examination Tool</div></div>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="privacy.html">Privacy</a>
+    <a href="contact.html">Contact</a>
+    <a href="index.html" class="btn-cta">Login →</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <h1>About Lagos Broadsheet</h1>
+  <p>A free, purpose-built digital tool for Lagos State teachers to manage examination results the right way.</p>
+</div>
+
+<div class="content">
+
+  <h2>What Is Lagos Broadsheet?</h2>
+  <p>Lagos Broadsheet is a free web-based examination result management system designed specifically for teachers and schools operating under the <strong>Lagos State Universal Basic Education Board (LASUBEB)</strong> unified examination framework.</p>
+  <p>The tool replicates the official LASUBEB unified examination master sheet in digital form, making it faster, more accurate, and easier to manage than working with paper sheets or generic spreadsheets.</p>
+
+  <div class="highlight">
+    <p>📋 Lagos Broadsheet is designed around the exact format of the LASUBEB Unified Examination Master Sheet — the same columns, the same structure, the same calculation rules.</p>
+  </div>
+
+  <h2>Why Was It Built?</h2>
+  <p>Lagos State primary school teachers are required to complete detailed examination broadsheets every term. These include:</p>
+  <ul>
+    <li>Recording scores for every pupil across multiple subjects</li>
+    <li>Calculating totals, brought-forward scores, and term averages</li>
+    <li>Ranking pupils by academic performance</li>
+    <li>Generating score distribution reports showing how many pupils scored in each range</li>
+  </ul>
+  <p>Doing all of this by hand — or even in a general spreadsheet — is time-consuming and error-prone. Lagos Broadsheet automates every calculation so teachers can focus on teaching, not paperwork.</p>
+
+  <h2>Key Features</h2>
+  <ul>
+    <li><strong>Three-term result management</strong> with automatic Brought Forward (B/F) calculations</li>
+    <li><strong>Auto-ranking</strong> — pupils ranked and sorted automatically using standard competition ranking (1st, 2nd, 2nd, 4th for ties)</li>
+    <li><strong>Remarks</strong> — Passed (≥50), Failed (&lt;50), or Absent (no score entered)</li>
+    <li><strong>Score Distribution Sheet</strong> — official LASUBEB project sheet showing score range counts per subject</li>
+    <li><strong>Flexible subject lists</strong> — each teacher/class can add or remove subjects to match what their class takes</li>
+    <li><strong>Secure accounts</strong> — each teacher's data is private and password-protected</li>
+    <li><strong>Auto-save</strong> — data saves automatically as you type</li>
+    <li><strong>Print-ready</strong> — clean, formatted print layout for submission</li>
+    <li><strong>Works on all devices</strong> — phone, tablet, laptop, desktop</li>
+    <li><strong>No installation needed</strong> — runs entirely in your web browser</li>
+  </ul>
+
+  <h2>Who Can Use It?</h2>
+  <p>Lagos Broadsheet is designed for:</p>
+  <ul>
+    <li><strong>Class teachers</strong> in Lagos State primary, nursery, and kindergarten schools</li>
+    <li><strong>Head teachers</strong> who need to manage multiple teacher accounts</li>
+    <li><strong>Examination officers</strong> who prepare score distribution reports for LASUBEB</li>
+  </ul>
+
+  <h2>Is It Free?</h2>
+  <p>Yes. Lagos Broadsheet is completely free to use. There are no hidden charges, no premium tiers, and no subscription fees. The tool is sustained by non-intrusive advertising.</p>
+
+  <h2>Data &amp; Privacy</h2>
+  <p>All data entered into Lagos Broadsheet is stored locally in your browser using localStorage. It is not transmitted to any external server, shared with third parties, or used for any purpose other than displaying your broadsheet. See our <a href="privacy.html" style="color:#c0392b;font-weight:600;">Privacy Policy</a> for full details.</p>
+
+  <div class="cta-box">
+    <h3>Start Using Lagos Broadsheet Today</h3>
+    <p>Free to use. No installation. Works on any device.</p>
+    <a href="index.html">Create Free Account →</a>
+  </div>
+
+</div>
+
+<footer>
+  <div><strong style="color:#fff;">Lagos Broadsheet</strong> — LASUBEB Digital Examination Tool<br><span style="font-size:.68rem;">© 2025 LagoBroadsheet.edu.ng. All rights reserved.</span></div>
+  <div style="display:flex;gap:16px;flex-wrap:wrap;">
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="privacy.html">Privacy Policy</a>
+    <a href="contact.html">Contact</a>
+  </div>
+</footer>
+
+</body>
+</html>

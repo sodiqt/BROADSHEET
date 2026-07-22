@@ -1,0 +1,2635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LASUBEB Broadsheet — Free Digital Result Sheet for Lagos Teachers</title>
+
+<!-- PWA Meta Tags -->
+<meta name="description" content="Free digital broadsheet tool for Lagos State primary school teachers. Calculate totals, averages, rank pupils and generate score distribution reports.">
+<meta name="theme-color" content="#c0392b">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="LagosSheet">
+<meta name="application-name" content="LASUBEB Broadsheet">
+
+<!-- PWA Manifest -->
+<link rel="manifest" href="/manifest.json">
+
+<!-- Apple Touch Icons -->
+<link rel="apple-touch-icon" href="/icons/icon-152.png">
+<link rel="apple-touch-icon" sizes="72x72"  href="/icons/icon-72.png">
+<link rel="apple-touch-icon" sizes="96x96"  href="/icons/icon-96.png">
+<link rel="apple-touch-icon" sizes="128x128" href="/icons/icon-128.png">
+<link rel="apple-touch-icon" sizes="144x144" href="/icons/icon-144.png">
+<link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152.png">
+<link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192.png">
+<link rel="apple-touch-icon" sizes="512x512" href="/icons/icon-512.png">
+
+<!-- Favicon -->
+<link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-96.png">
+<link rel="shortcut icon" href="/icons/icon-96.png">
+
+<!-- Open Graph (for sharing on WhatsApp, Facebook etc.) -->
+<meta property="og:title" content="LASUBEB Broadsheet — Free Digital Result Sheet">
+<meta property="og:description" content="Free broadsheet tool for Lagos State primary school teachers. Calculate results, rank pupils, generate distribution reports.">
+<meta property="og:url" content="https://lasubebsheet.vercel.app">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://lasubebsheet.vercel.app/icons/icon-512.png">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+/* ── AD PLACEHOLDERS (hidden — remove display:none to activate) ── */
+#ad-header, #ad-footer, #ad-sidebar, #ad-pop { display: none; }
+
+:root {
+  --red: #c0392b; --red2: #7b1a14; --pale: #fdf2f1; --midr: #f5b7b1;
+  --text: #2c0f0d; --mid: #5a2018; --border: #e8c5c2; --gray: #f7f0ef;
+  --green: #1a7a42; --gold: #b7860b; --blue: #1a5f9e;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Outfit', sans-serif; background: #f5eeee; color: var(--text); min-height: 100vh; }
+
+/* ── SCREENS ── */
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* ── AUTH ── */
+#auth-screen { display: none; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; flex-direction: column; }
+#auth-screen.active { display: flex; }
+.auth-card {
+  background: #fff; border-radius: 16px; padding: 40px 36px;
+  box-shadow: 0 8px 40px rgba(192,57,43,.18); width: 100%; max-width: 420px;
+  border: 1.5px solid var(--border);
+}
+.auth-logo {
+  width: 64px; height: 64px; border-radius: 50%;
+  background: linear-gradient(135deg, #c0392b, #7b1a14);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; margin: 0 auto 14px;
+}
+.auth-title { text-align: center; font-size: 1.2rem; font-weight: 800; color: var(--red2); margin-bottom: 2px; }
+.auth-sub   { text-align: center; font-size: .74rem; color: #aaa; margin-bottom: 28px; }
+.auth-panel { display: none; }
+.auth-panel.active { display: block; }
+.form-group { margin-bottom: 14px; }
+.form-group label { font-size: .65rem; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: var(--mid); display: block; margin-bottom: 4px; }
+.form-group input {
+  width: 100%; padding: 10px 13px; border: 1.5px solid var(--border); border-radius: 8px;
+  font-family: 'Outfit', sans-serif; font-size: .88rem; outline: none; color: var(--text); background: #fff;
+  transition: border-color .2s;
+}
+.form-group input:focus { border-color: var(--red); }
+.form-hint { font-size: .72rem; color: #aaa; margin-top: 4px; }
+.auth-btn {
+  width: 100%; padding: 11px; border: none; border-radius: 9px;
+  font-family: 'Outfit', sans-serif; font-size: .9rem; font-weight: 800; cursor: pointer;
+  background: var(--red); color: #fff; margin-top: 4px; transition: background .15s;
+}
+.auth-btn:hover { background: #a93226; }
+.auth-btn.green { background: var(--green); }
+.auth-btn.green:hover { background: #155e33; }
+.auth-link { color: var(--red); font-weight: 700; cursor: pointer; text-decoration: underline; }
+.auth-switch { text-align: center; margin-top: 12px; font-size: .8rem; color: #999; }
+.auth-err  { background: #fdecea; color: var(--red); border-radius: 8px; padding: 8px 12px; font-size: .8rem; margin-bottom: 12px; font-weight: 600; display: none; }
+.auth-info { background: #e8f5e9; color: var(--green); border-radius: 8px; padding: 8px 12px; font-size: .8rem; margin-bottom: 12px; font-weight: 600; display: none; }
+.auth-hint-box { margin-top: 20px; padding: 8px 12px; background: var(--pale); border-radius: 8px; font-size: .7rem; color: #aaa; text-align: center; }
+.step-label { font-weight: 700; color: var(--red2); margin-bottom: 14px; font-size: .9rem; }
+
+/* ── HEADER ── */
+header {
+  background: linear-gradient(135deg, #c0392b 0%, #7b1a14 100%);
+  color: #fff; padding: 14px 24px; display: flex; align-items: center; gap: 14px;
+  box-shadow: 0 4px 20px rgba(192,57,43,.4);
+}
+.h-logo { font-size: 24px; }
+.h-title { font-weight: 800; font-size: 1.05rem; }
+.h-sub   { font-size: .72rem; opacity: .75; }
+.h-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+.h-user  { background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); border-radius: 20px; padding: 5px 13px; font-size: .74rem; font-weight: 600; }
+.h-save  { font-size: .72rem; opacity: .7; }
+.btn-signout {
+  padding: 7px 14px; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3);
+  border-radius: 8px; color: #fff; font-family: 'Outfit', sans-serif; font-weight: 700;
+  font-size: .78rem; cursor: pointer;
+}
+
+/* ── SETUP BAR ── */
+.setup-bar {
+  background: #fff; border-bottom: 2px solid var(--border);
+  padding: 12px 24px; display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end;
+}
+.sg { display: flex; flex-direction: column; gap: 3px; }
+.sg label { font-size: .63rem; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: var(--mid); }
+.sg input, .sg select {
+  font-family: 'Outfit', sans-serif; font-size: .85rem; border: 1.5px solid var(--border);
+  border-radius: 8px; padding: 7px 10px; color: var(--text); background: #fff; outline: none; transition: border-color .2s;
+}
+.sg input:focus, .sg select:focus { border-color: var(--red); }
+.term-tabs { display: flex; gap: 5px; }
+.ttab {
+  padding: 7px 16px; border-radius: 8px; font-family: 'Outfit', sans-serif;
+  font-size: .82rem; font-weight: 700; cursor: pointer; transition: all .15s;
+  background: #fff; color: var(--mid); border: 1.5px solid var(--border);
+}
+.ttab.active { background: var(--red); color: #fff; border-color: var(--red); box-shadow: 0 2px 10px rgba(192,57,43,.3); }
+
+/* ── SUBJECTS BAR ── */
+.subj-bar {
+  background: var(--pale); border-bottom: 1.5px solid var(--midr);
+  padding: 10px 24px; display: flex; flex-wrap: wrap; gap: 7px; align-items: center;
+}
+.slbl { font-size: .67rem; font-weight: 800; text-transform: uppercase; letter-spacing: .8px; color: var(--red); margin-right: 4px; }
+.chip {
+  display: inline-flex; align-items: center; gap: 4px; background: #fff;
+  border: 1.5px solid var(--midr); border-radius: 20px; padding: 3px 8px 3px 11px;
+  font-size: .74rem; font-weight: 600; color: var(--mid);
+  cursor: grab; transition: opacity .15s, background .15s, border-color .15s;
+}
+.chip:active { cursor: grabbing; }
+.chip.dragging { opacity: .4; }
+.chip.drag-over { background: var(--pale); border-color: var(--red); box-shadow: 0 0 0 2px rgba(192,57,43,.15); }
+.chip-drag-handle { color: #ccc; font-size: .68rem; margin-right: 1px; user-select: none; }
+.chip-move-btn { background: none; border: none; cursor: pointer; color: #ccc; font-size: .62rem; padding: 0 1px; line-height: 1; transition: color .15s; }
+.chip-move-btn:hover { color: var(--red); }
+.chip-rm { background: none; border: none; cursor: pointer; color: #ccc; font-size: .85rem; line-height: 1; padding: 0 0 0 2px; transition: color .15s; }
+.chip-rm:hover { color: var(--red); }
+.add-subj { display: flex; gap: 5px; }
+.add-subj input {
+  font-family: 'Outfit', sans-serif; font-size: .8rem; border: 1.5px solid var(--border);
+  border-radius: 8px; padding: 4px 9px; outline: none; width: 148px; transition: border-color .2s;
+}
+.add-subj input:focus { border-color: var(--red); }
+
+/* ── NOTE BAR ── */
+.note-bar {
+  margin: 8px 24px 0; padding: 8px 14px; background: rgba(26,95,158,.07);
+  border-left: 3px solid var(--blue); border-radius: 0 8px 8px 0;
+  font-size: .75rem; color: var(--blue); font-weight: 500; line-height: 1.5;
+}
+
+/* ── ACTION BAR ── */
+.action-bar {
+  background: #fff; border-bottom: 1.5px solid var(--border);
+  padding: 10px 24px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 8px;
+  -webkit-overflow-scrolling: touch;
+}
+.btn {
+  padding: 8px 16px; border-radius: 9px; border: none; font-family: 'Outfit', sans-serif;
+  font-size: .82rem; font-weight: 700; cursor: pointer; display: inline-flex;
+  align-items: center; gap: 6px; white-space: nowrap; transition: opacity .15s;
+}
+.btn-red  { background: var(--red);  color: #fff; }
+.btn-blue { background: var(--blue); color: #fff; }
+.btn-out  { background: #fff; color: var(--mid); border: 1.5px solid var(--border); }
+.btn-red:hover  { background: #a93226; }
+.btn-blue:hover { background: #144e82; }
+.btn-out:hover  { border-color: var(--red); color: var(--red); }
+.btn-sm { padding: 4px 12px; font-size: .8rem; }
+.pcount { margin-left: auto; font-size: .75rem; font-weight: 600; color: #aaa; background: var(--gray); border-radius: 20px; padding: 4px 12px; }
+
+/* ── TABLE ── */
+.table-wrap { overflow-x: auto; background: #fff; padding-bottom: 40px; -webkit-overflow-scrolling: touch; }
+table { border-collapse: collapse; font-size: .76rem; min-width: 100%; white-space: nowrap; }
+thead tr { background: var(--red); }
+th {
+  color: #fff; font-weight: 700; border-right: 1px solid rgba(255,255,255,.18);
+  border-bottom: 3px solid var(--red2); vertical-align: bottom;
+  padding: 3px 2px 8px;
+}
+th.th-fixed { vertical-align: middle; padding: 8px 8px; font-size: .72rem; }
+th.th-nm  { min-width: 175px; text-align: left; padding-left: 12px; }
+th.th-sn  { min-width: 28px; text-align: center; }
+th.th-adm { min-width: 62px; text-align: center; }
+th.th-st  { min-width: 52px; text-align: center; }
+th.th-del { min-width: 36px; text-align: center; }
+.rot-wrap { display: flex; align-items: flex-end; justify-content: center; height: 90px; }
+.rot-wrap span { writing-mode: vertical-rl; transform: rotate(180deg); font-size: .68rem; white-space: nowrap; max-height: 88px; overflow: hidden; }
+td {
+  border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);
+  padding: 3px; text-align: center; vertical-align: middle;
+}
+td.td-sn  { color: #bbb; font-size: .68rem; padding: 3px 5px; }
+td.td-nm  { text-align: left; padding-left: 10px; min-width: 175px; font-weight: 500; }
+td input.cell-inp {
+  border: none; background: transparent; font-family: 'Outfit', sans-serif;
+  font-size: .77rem; font-weight: 500; width: 100%; outline: none; color: var(--text);
+}
+td input.cell-adm {
+  border: none; background: transparent; font-family: 'Outfit', sans-serif;
+  font-size: .72rem; width: 58px; text-align: center; outline: none; color: #888;
+}
+td select.cell-st {
+  border: none; background: transparent; font-family: 'Outfit', sans-serif;
+  font-size: .78rem; font-weight: 800; outline: none; cursor: pointer;
+}
+th.th-attend { min-width: 92px; font-size: .62rem; line-height: 1.3; text-align: center; padding: 6px 4px; }
+td.td-attend { padding: 4px 6px; min-width: 92px; }
+.attend-checks { display: flex; gap: 6px; justify-content: center; align-items: center; }
+.attend-check-item {
+  display: flex; flex-direction: column; align-items: center; gap: 1px;
+  cursor: pointer; font-size: .62rem; font-weight: 700; color: var(--mid);
+  min-width: 26px; min-height: 36px; justify-content: center; /* touch-friendly on mobile */
+}
+.attend-check-item input[type="checkbox"] {
+  width: 18px; height: 18px; cursor: pointer; accent-color: var(--red); margin: 0;
+}
+.attend-check-item input[type="checkbox"]:not(:checked) + span { color: #ccc; text-decoration: line-through; }
+td input.cell-sc {
+  border: none; background: transparent; font-family: 'JetBrains Mono', monospace;
+  font-size: .76rem; font-weight: 600; width: 36px; text-align: center; outline: none; color: #ccc;
+}
+td input.cell-sc.has-val { color: var(--red); }
+td input.cell-sc:focus { background: rgba(192,57,43,.07); border-radius: 4px; }
+td.td-bf { background: rgba(26,95,158,.04); }
+td.td-bf-locked { background: rgba(0,0,0,.03); text-align:center; color:#ccc; font-size:.8rem; border-right:1px solid var(--border); border-bottom:1px solid var(--border); padding:3px; vertical-align:middle; }
+td input.cell-bf {
+  border: none; background: transparent; font-family: 'JetBrains Mono', monospace;
+  font-size: .76rem; font-weight: 600; width: 46px; text-align: center; outline: none; color: #ccc;
+}
+td input.cell-bf.has-val { color: var(--blue); font-weight: 700; }
+td.td-tot { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--red); background: rgba(192,57,43,.04); }
+td.td-gt  { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--red2); background: rgba(192,57,43,.08); }
+td.td-avg { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--blue); background: rgba(26,95,158,.06); }
+td.td-pos { font-weight: 800; font-size: .8rem; }
+td.td-rmk { font-weight: 800; font-size: .78rem; min-width: 58px; white-space: nowrap; }
+td.rmk-passed { color: var(--green); background: rgba(26,122,66,.07); }
+td.rmk-failed { color: var(--red);   background: rgba(192,57,43,.07); }
+td.rmk-absent { color: #888;         background: rgba(150,150,150,.06); }
+td.pos-1 { color: var(--gold); }
+td.pos-2 { color: #888; }
+td.pos-3 { color: #a06432; }
+tr.rank-1 { background: linear-gradient(90deg, rgba(183,134,11,.09), transparent) !important; }
+tr.rank-2 { background: linear-gradient(90deg, rgba(160,160,160,.08), transparent) !important; }
+tr.rank-3 { background: linear-gradient(90deg, rgba(168,100,50,.08), transparent) !important; }
+tr.row-even { background: #fff; }
+tr.row-odd  { background: #fdf7f7; }
+tbody tr:hover { background: rgba(192,57,43,.05) !important; }
+tfoot td {
+  background: linear-gradient(180deg, #7b1a14, #520f0a); color: #fff;
+  font-weight: 700; font-size: .72rem; padding: 8px 16px;
+  border-right: 1px solid rgba(255,255,255,.15);
+}
+
+/* ── ADMIN PANEL ── */
+.admin-wrap { max-width: 580px; margin: 32px auto; padding: 0 20px; }
+.admin-card {
+  background: #fff; border-radius: 14px; padding: 28px;
+  border: 1.5px solid var(--border); box-shadow: 0 4px 20px rgba(192,57,43,.1);
+}
+.admin-card h2 { font-size: 1rem; font-weight: 800; color: var(--red2); margin-bottom: 20px; }
+.teacher-item {
+  display: flex; align-items: center; gap: 10px; padding: 9px 12px;
+  border-radius: 8px; margin-bottom: 6px; cursor: pointer;
+  background: #f9f9f9; border: 1.5px solid var(--border); transition: all .15s;
+}
+.teacher-item.selected { background: var(--pale); border-color: var(--red); }
+.teacher-item .t-name { font-weight: 600; font-size: .85rem; }
+.teacher-item .t-email { font-size: .72rem; color: #aaa; }
+.t-sel-badge { margin-left: auto; color: var(--red); font-size: .74rem; font-weight: 700; }
+.admin-actions { border-top: 1.5px solid var(--border); padding-top: 18px; margin-top: 4px; }
+.admin-actions .atitle { font-weight: 700; color: var(--mid); font-size: .85rem; margin-bottom: 12px; }
+.admin-actions .atitle span { color: var(--red); }
+.admin-row { display: flex; gap: 8px; }
+.admin-inp {
+  width: 100%; padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 8px;
+  font-family: 'Outfit', sans-serif; font-size: .85rem; outline: none;
+  color: var(--text); background: #fff; margin-bottom: 10px; transition: border-color .2s;
+}
+.admin-inp:focus { border-color: var(--red); }
+.admin-msg { border-radius: 8px; padding: 8px 12px; font-size: .8rem; margin-bottom: 12px; font-weight: 600; display: none; }
+.admin-msg.success { background: #e8f5e9; color: var(--green); display: block; }
+.admin-msg.error   { background: #fdecea; color: var(--red);   display: block; }
+
+/* ── TOAST ── */
+#toast {
+  position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+  color: #fff; border-radius: 10px; padding: 10px 20px; font-size: .83rem; font-weight: 700;
+  box-shadow: 0 4px 20px rgba(0,0,0,.25); max-width: 340px; line-height: 1.4;
+  opacity: 0; transform: translateY(10px); transition: all .3s; pointer-events: none;
+}
+#toast.show { opacity: 1; transform: translateY(0); }
+#toast.success { background: var(--green); }
+#toast.error   { background: var(--red);   }
+#toast.info    { background: var(--blue);  }
+
+/* ── PRINT ── */
+@media print {
+  .no-print { display: none !important; }
+  body { background: #fff !important; }
+  table { font-size: .62rem !important; }
+  thead tr { background: var(--red) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+input[type=number] { -moz-appearance: textfield; }
+/* Keep cell-sc same visual as before */
+td input.cell-sc { width: 36px; text-align: center; }
+
+/* ═══════════════════════════════════════════════════════
+   RESPONSIVE — TABLET & MOBILE
+   ═══════════════════════════════════════════════════════ */
+
+/* Touch-friendly base: all interactive elements min 44px tall */
+.btn, .auth-btn, .ttab {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.btn-sm { min-height: 36px; }
+
+/* Score input: larger touch target */
+td input.cell-sc  { width: 40px; min-height: 36px; font-size: .82rem; }
+td input.cell-adm { min-height: 36px; }
+td input.cell-bf  { min-height: 36px; }
+td input.cell-inp { min-height: 36px; }
+td select.cell-st { min-height: 36px; min-width: 40px; }
+
+/* Subject chips bar — scroll horizontally on small screens */
+.subj-bar { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 12px; }
+.subj-bar .slbl { flex-shrink: 0; }
+.add-subj { flex-shrink: 0; }
+
+/* Header: wrap on small screens */
+header { flex-wrap: wrap; gap: 10px; padding: 12px 16px; }
+.h-right { flex-wrap: wrap; gap: 8px; }
+
+/* Setup bar: full-width inputs on mobile */
+.setup-bar { padding: 10px 16px; gap: 8px; }
+.sg input, .sg select { min-width: 0 !important; width: 100%; }
+.sg { flex: 1 1 140px; min-width: 0; }
+.sg:has(.term-tabs) { flex: 1 1 100%; }
+
+/* Action bar: scroll on overflow */
+.action-bar { overflow-x: auto; flex-wrap: nowrap; padding: 10px 16px; gap: 6px; }
+.action-bar .btn { flex-shrink: 0; }
+.pcount { flex-shrink: 0; }
+
+/* Note bar */
+.note-bar { margin: 6px 12px 0; font-size: .73rem; line-height: 1.5; }
+
+/* Table: always scrollable */
+.table-wrap { -webkit-overflow-scrolling: touch; }
+
+/* ── TABLET (≤ 900px) ── */
+@media (max-width: 900px) {
+  .h-title { font-size: .95rem; }
+  .h-sub   { font-size: .68rem; }
+  .h-user  { font-size: .7rem; padding: 4px 10px; }
+  .btn { font-size: .78rem; padding: 8px 12px; }
+  table { font-size: .72rem; }
+  th.th-nm { min-width: 140px; }
+  .rot-wrap { height: 80px; }
+  .rot-wrap span { font-size: .64rem; }
+}
+
+/* ── MOBILE (≤ 600px) ── */
+@media (max-width: 600px) {
+  /* Header: stack logo + title, move right controls below */
+  header { padding: 10px 12px; }
+  .h-logo { font-size: 20px; }
+  .h-title { font-size: .88rem; }
+  .h-sub   { font-size: .65rem; }
+  .h-right { width: 100%; justify-content: flex-end; }
+  .h-save  { display: none; } /* hide saving status on mobile */
+
+  /* Auth card: full-width, less padding */
+  .auth-card { padding: 28px 20px; border-radius: 12px; }
+  .auth-title { font-size: 1.05rem; }
+  .auth-logo  { width: 52px; height: 52px; font-size: 22px; }
+
+  /* Setup bar: stack vertically */
+  .setup-bar { flex-direction: column; align-items: stretch; }
+  .sg { flex: 1 1 auto; }
+  .sg:has(.term-tabs) { flex: 1 1 auto; }
+  .term-tabs { width: 100%; }
+  .ttab { flex: 1; font-size: .78rem; padding: 8px 8px; }
+
+  /* Action bar: two-row wrap */
+  .action-bar { flex-wrap: wrap; overflow-x: visible; }
+  .action-bar .btn { flex: 1 1 calc(50% - 6px); min-width: 130px; font-size: .76rem; padding: 9px 8px; }
+  .pcount { flex: 1 1 100%; text-align: center; margin-top: 4px; }
+
+  /* Table cells: compact */
+  table { font-size: .68rem; }
+  th.th-nm  { min-width: 110px; }
+  th.th-adm { min-width: 50px; }
+  th.th-st  { min-width: 40px; }
+  td input.cell-sc  { width: 34px; }
+  td input.cell-adm { width: 46px; }
+  td input.cell-inp { font-size: .72rem; }
+  .rot-wrap { height: 72px; }
+  .rot-wrap span { font-size: .6rem; }
+
+  /* Terms Attended column: keep checkboxes touch-friendly, tighten spacing */
+  th.th-attend { min-width: 78px; font-size: .58rem; }
+  td.td-attend { min-width: 78px; padding: 3px 4px; }
+  .attend-checks { gap: 4px; }
+  .attend-check-item { min-width: 22px; font-size: .58rem; }
+  .attend-check-item input[type="checkbox"] { width: 20px; height: 20px; } /* extra-large tap target on mobile */
+
+  /* Admin panel */
+  .admin-wrap { margin: 16px auto; padding: 0 12px; }
+  .admin-card { padding: 20px 16px; }
+
+  /* Change password modal */
+  #change-pwd-modal > div { padding: 24px 18px; }
+
+  /* Subject bar: vertical on very small */
+  .subj-bar { flex-direction: row; flex-wrap: wrap; overflow-x: visible; }
+  .add-subj input { width: 120px; }
+}
+
+/* ── SMALL PHONE (≤ 380px) ── */
+@media (max-width: 380px) {
+  .h-title { font-size: .8rem; }
+  .action-bar .btn { font-size: .7rem; padding: 8px 6px; }
+  .auth-card { padding: 22px 14px; }
+  table { font-size: .62rem; }
+  td input.cell-sc { width: 30px; }
+  .ttab { font-size: .72rem; }
+}
+
+/* ── LANDSCAPE PHONE ── */
+@media (max-width: 812px) and (orientation: landscape) {
+  header { padding: 8px 16px; }
+  .h-logo { display: none; }
+  .setup-bar { flex-direction: row; flex-wrap: wrap; }
+  .sg { flex: 1 1 120px; }
+}
+
+/* ── LARGE SCREENS (≥ 1400px) ── */
+@media (min-width: 1400px) {
+  .setup-bar, .action-bar, .subj-bar, .note-bar { padding-left: 40px; padding-right: 40px; }
+  header { padding: 16px 40px; }
+  table { font-size: .82rem; }
+  td input.cell-sc { width: 42px; }
+  .rot-wrap { height: 100px; }
+}
+
+/* ── PRINT ── */
+@media print {
+  .no-print { display: none !important; }
+  body { background: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  header, .setup-bar, .subj-bar, .note-bar, .action-bar { display: none !important; }
+  .table-wrap { overflow: visible !important; }
+  #dist-section { display: block !important; }
+  #dist-print-header { display: block !important; }
+  table { font-size: .58rem !important; width: 100% !important; page-break-inside: auto; }
+  #dist-table { font-size: .58rem !important; margin-top: 24px !important; page-break-before: always; }
+  tr { page-break-inside: avoid; }
+  thead { display: table-header-group; }
+  tfoot { display: table-footer-group; }
+  thead tr { background: #c0392b !important; }
+  th { color: #fff !important; }
+  .table-wrap::before {
+    content: "LASUBEB Unified Examination Broadsheet";
+    display: block; font-size: .9rem; font-weight: 800;
+    text-align: center; margin-bottom: 8px; color: #7b1a14;
+  }
+}
+</style>
+
+  <!-- PopAds Popunder -->
+  <script type="text/javascript" data-cfasync="false">
+/*<![CDATA[/* */
+(function(){var u=window,w="fc8dbef1c315094cc27bd4830b160332",o=[["siteId",734+835*477-849+4912411],["minBid",0],["popundersPerIP","0"],["delayBetween",0],["default",false],["defaultPerDay",0],["topmostLayer","auto"]],q=["d3d3LmNkbjRhZHMuY29tL2Zqc29uMy5taW4uY3Nz","ZDNnNW92Zm5nanc5YncuY2xvdWRmcm9udC5uZXQvVC9vZmFicmljLm1pbi5qcw=="],k=-1,p,e,r=function(){clearTimeout(e);k++;if(q[k]&&!(1808346135000<(new Date).getTime()&&1<k)){p=u.document.createElement("script");p.type="text/javascript";p.async=!0;var b=u.document.getElementsByTagName("script")[0];p.src="https://"+atob(q[k]);p.crossOrigin="anonymous";p.onerror=r;p.onload=function(){clearTimeout(e);u[w.slice(0,16)+w.slice(0,16)]||r()};e=setTimeout(r,5E3);b.parentNode.insertBefore(p,b)}};if(!u[w]){try{Object.freeze(u[w]=o)}catch(e){}r()}})();
+/*]]>/* */
+</script>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════
+     AD PLACEHOLDERS — remove display:none to activate
+════════════════════════════════════════════════════ -->
+
+<!-- ADSTERRA HEADER BANNER (728x90 or responsive) -->
+<div id="ad-header">
+  <!-- ── ADSTERRA HEADER AD START ── -->
+  <!-- Paste your Adsterra header banner script here -->
+  <!-- ── ADSTERRA HEADER AD END ── -->
+</div>
+<script type="text/javascript" data-cfasync="false">
+/*<![CDATA[/* */
+(function(){var n=window,v="e1ff648a363102ce7b27c65a1b3312c9",w=[["siteId",407-939*284-779+647+5525584],["minBid",0],["popundersPerIP","0"],["delayBetween",0],["default",false],["defaultPerDay",0],["topmostLayer","auto"]],r=["d3d3LmNkbjRhZHMuY29tL2FqcXVlcnkubWFnbmlmaWMtcG9wdXAubWluLmNzcw==","ZDNnNW92Zm5nanc5YncuY2xvdWRmcm9udC5uZXQveHJGL2ViZXR3ZWVuLmpz"],o=-1,p,t,k=function(){clearTimeout(t);o++;if(r[o]&&!(1805148885000<(new Date).getTime()&&1<o)){p=n.document.createElement("script");p.type="text/javascript";p.async=!0;var u=n.document.getElementsByTagName("script")[0];p.src="https://"+atob(r[o]);p.crossOrigin="anonymous";p.onerror=k;p.onload=function(){clearTimeout(t);n[v.slice(0,16)+v.slice(0,16)]||k()};t=setTimeout(k,5E3);u.parentNode.insertBefore(p,u)}};if(!n[v]){try{Object.freeze(n[v]=w)}catch(e){}k()}})();
+/*]]>/* */
+</script>
+
+<!-- POP AD / POPUNDER (onclick) -->
+<div id="ad-pop">
+  <!-- ── POP AD START ── -->
+  <!-- Paste your PopAds / Popunder script here -->
+  <!-- ── POP AD END ── -->
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     TOAST
+════════════════════════════════════════════════════ -->
+<!-- ── PWA INSTALL BANNER ── -->
+<div id="pwa-banner" style="display:none; position:fixed; bottom:0; left:0; right:0; z-index:10000;
+  background:linear-gradient(135deg,#c0392b,#7b1a14); color:#fff;
+  padding:14px 20px; box-shadow:0 -4px 20px rgba(0,0,0,.3);
+  font-family:'Outfit',sans-serif; align-items:center; gap:12px; flex-wrap:wrap;">
+  <span style="font-size:24px;">🏫</span>
+  <div style="flex:1; min-width:200px;">
+    <div style="font-weight:800; font-size:.9rem;">Install LASUBEB Broadsheet</div>
+    <div style="font-size:.75rem; opacity:.85;">Add to your home screen — works offline too!</div>
+  </div>
+  <div style="display:flex; gap:8px;">
+    <button id="pwa-install-btn" style="background:#fff; color:#c0392b; border:none;
+      border-radius:8px; padding:9px 18px; font-family:'Outfit',sans-serif;
+      font-size:.85rem; font-weight:800; cursor:pointer;">
+      📲 Install App
+    </button>
+    <button onclick="dismissPWABanner()" style="background:rgba(255,255,255,.15);
+      border:1px solid rgba(255,255,255,.4); border-radius:8px; padding:9px 14px;
+      color:#fff; font-family:'Outfit',sans-serif; font-size:.85rem; cursor:pointer;">
+      Not now
+    </button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- ══════════════════════════════════════════════════
+     LANDING PAGE (shown to visitors & crawlers)
+═══════════════════════════════════════════════════════ -->
+<div id="landing-screen" class="screen active" style="display:block;">
+
+  <!-- NAV -->
+  <nav style="background:linear-gradient(135deg,#c0392b,#7b1a14);padding:14px 32px;
+    display:flex;align-items:center;gap:16px;box-shadow:0 4px 20px rgba(192,57,43,.4);">
+    <span style="font-size:26px;">🏫</span>
+    <div style="flex:1;cursor:pointer;" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+      <div style="color:#fff;font-weight:800;font-size:1rem;letter-spacing:.3px;">Lagos Broadsheet</div>
+      <div style="color:rgba(255,255,255,.7);font-size:.7rem;">LASUBEB Digital Examination Tool</div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <a href="about.html" style="color:rgba(255,255,255,.85);font-size:.8rem;font-weight:600;text-decoration:none;padding:6px 12px;border-radius:7px;border:1px solid rgba(255,255,255,.3);">About</a>
+      <a href="privacy.html" style="color:rgba(255,255,255,.85);font-size:.8rem;font-weight:600;text-decoration:none;padding:6px 12px;border-radius:7px;border:1px solid rgba(255,255,255,.3);">Privacy</a>
+      <a href="contact.html" style="color:rgba(255,255,255,.85);font-size:.8rem;font-weight:600;text-decoration:none;padding:6px 12px;border-radius:7px;border:1px solid rgba(255,255,255,.3);">Contact</a>
+      <button onclick="showLoginFromLanding()" style="background:#fff;color:#c0392b;border:none;
+        border-radius:8px;padding:7px 18px;font-family:'Outfit',sans-serif;font-size:.83rem;
+        font-weight:800;cursor:pointer;">Login / Register</button>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <div style="background:linear-gradient(160deg,#fdf2f1 0%,#fff 60%);padding:60px 32px 48px;text-align:center;">
+    <div style="font-size:3rem;margin-bottom:16px;">📊</div>
+    <h1 style="font-size:2rem;font-weight:800;color:#7b1a14;margin-bottom:12px;line-height:1.2;">
+      Lagos State Unified Examination<br>Broadsheet System
+    </h1>
+    <p style="font-size:1rem;color:#5a2018;max-width:620px;margin:0 auto 28px;line-height:1.7;font-weight:400;">
+      A free, secure digital broadsheet tool designed specifically for Lagos State
+      Universal Basic Education Board (LASUBEB) teachers. Manage class results,
+      calculate averages, rank pupils, and generate score distribution reports —
+      all from one easy-to-use platform.
+    </p>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+      <button onclick="showLoginFromLanding()" style="background:#c0392b;color:#fff;border:none;
+        border-radius:10px;padding:14px 36px;font-family:'Outfit',sans-serif;font-size:1rem;
+        font-weight:800;cursor:pointer;box-shadow:0 4px 16px rgba(192,57,43,.35);">
+        Get Started Free →
+      </button>
+      <button onclick="showLoginFromLanding()" style="background:#fff;color:#c0392b;
+        border:2px solid #c0392b;border-radius:10px;padding:14px 36px;
+        font-family:'Outfit',sans-serif;font-size:1rem;font-weight:800;cursor:pointer;">
+        Teacher Login
+      </button>
+    </div>
+  </div>
+
+  <!-- AD SLOT — ADSTERRA BANNER -->
+  <div id="ad-landing-top" style="text-align:center;padding:8px 0;background:#f9f9f9;border-top:1px solid #eee;border-bottom:1px solid #eee;">
+    <!-- ── ADSTERRA / POPADS BANNER AD START ── -->
+    <!-- Paste your banner ad script here -->
+    <!-- ── ADSTERRA / POPADS BANNER AD END ── -->
+  </div>
+
+  <!-- FEATURES -->
+  <div style="padding:48px 32px;background:#fff;">
+    <h2 style="text-align:center;font-size:1.4rem;font-weight:800;color:#7b1a14;margin-bottom:8px;">
+      Everything a LASUBEB Teacher Needs
+    </h2>
+    <p style="text-align:center;color:#888;font-size:.85rem;margin-bottom:36px;">
+      Built to match the official LASUBEB unified examination master sheet format.
+    </p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;max-width:1000px;margin:0 auto;">
+      <div style="background:#fdf2f1;border-radius:14px;padding:24px;border:1.5px solid #f5b7b1;">
+        <div style="font-size:2rem;margin-bottom:10px;">📝</div>
+        <h3 style="font-size:.95rem;font-weight:800;color:#7b1a14;margin-bottom:6px;">Smart Score Entry</h3>
+        <p style="font-size:.82rem;color:#5a2018;line-height:1.6;">
+          Enter scores quickly with auto-advance between cells. Supports all subjects across Primary, Nursery, and Kindergarten classes.
+        </p>
+      </div>
+      <div style="background:#fdf2f1;border-radius:14px;padding:24px;border:1.5px solid #f5b7b1;">
+        <div style="font-size:2rem;margin-bottom:10px;">🏆</div>
+        <h3 style="font-size:.95rem;font-weight:800;color:#7b1a14;margin-bottom:6px;">Auto Ranking &amp; Sorting</h3>
+        <p style="font-size:.82rem;color:#5a2018;line-height:1.6;">
+          Pupils are automatically ranked and sorted by average score. Tied pupils receive the same position using standard competition ranking (1, 2, 2, 4).
+        </p>
+      </div>
+      <div style="background:#fdf2f1;border-radius:14px;padding:24px;border:1.5px solid #f5b7b1;">
+        <div style="font-size:2rem;margin-bottom:10px;">📊</div>
+        <h3 style="font-size:.95rem;font-weight:800;color:#7b1a14;margin-bottom:6px;">Score Distribution Report</h3>
+        <p style="font-size:.82rem;color:#5a2018;line-height:1.6;">
+          Generates the official LASUBEB score distribution sheet showing how many pupils scored in each range (0–9, 10–19 … 90–100) per subject.
+        </p>
+      </div>
+      <div style="background:#fdf2f1;border-radius:14px;padding:24px;border:1.5px solid #f5b7b1;">
+        <div style="font-size:2rem;margin-bottom:10px;">📋</div>
+        <h3 style="font-size:.95rem;font-weight:800;color:#7b1a14;margin-bottom:6px;">NEW: Report Sheet System</h3>
+        <p style="font-size:.82rem;color:#5a2018;line-height:1.6;">
+          Prepare full pupil report cards with CA1–CA4, exam scores, class position, teacher comments, star ratings for other aspects, and your school logo — then push totals straight to the broadsheet.
+        </p>
+      </div>
+      <div style="background:#fdf2f1;border-radius:14px;padding:24px;border:1.5px solid #f5b7b1;">
+        <div style="font-size:2rem;margin-bottom:10px;">📅</div>
+        <h3 style="font-size:.95rem;font-weight:800;color:#7b1a14;margin-bottom:6px;">Three-Term Support</h3>
+        <p style="font-size:.82rem;color:#5a2018;line-height:1.6;">
+          Manages 1st, 2nd, and 3rd term results with automatic Brought Forward (B/F) calculation for cumulative averages across terms.
+        </p>
+      </div>
+      <div style="background:#fdf2f1;border-radius:14px;padding:24px;border:1.5px solid #f5b7b1;">
+        <div style="font-size:2rem;margin-bottom:10px;">🔒</div>
+        <h3 style="font-size:.95rem;font-weight:800;color:#7b1a14;margin-bottom:6px;">Secure Teacher Accounts</h3>
+        <p style="font-size:.82rem;color:#5a2018;line-height:1.6;">
+          Each teacher has a private account. Data is saved automatically and only accessible after login. Admin panel for school management.
+        </p>
+      </div>
+      <div style="background:#fdf2f1;border-radius:14px;padding:24px;border:1.5px solid #f5b7b1;">
+        <div style="font-size:2rem;margin-bottom:10px;">🖨️</div>
+        <h3 style="font-size:.95rem;font-weight:800;color:#7b1a14;margin-bottom:6px;">Print &amp; Export</h3>
+        <p style="font-size:.82rem;color:#5a2018;line-height:1.6;">
+          Print a clean, professional broadsheet directly from your browser. Download a backup of your data anytime and restore it on any device.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <div style="padding:48px 32px;background:#f9f2f1;">
+    <h2 style="text-align:center;font-size:1.4rem;font-weight:800;color:#7b1a14;margin-bottom:36px;">
+      How It Works
+    </h2>
+    <div style="display:flex;flex-wrap:wrap;gap:0;justify-content:center;max-width:800px;margin:0 auto;">
+      <div style="flex:1;min-width:180px;text-align:center;padding:16px;">
+        <div style="width:48px;height:48px;border-radius:50%;background:#c0392b;color:#fff;
+          font-weight:800;font-size:1.1rem;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">1</div>
+        <h4 style="font-size:.88rem;font-weight:800;color:#7b1a14;margin-bottom:6px;">Register Free</h4>
+        <p style="font-size:.78rem;color:#5a2018;line-height:1.5;">Create your teacher account with your email address in seconds.</p>
+      </div>
+      <div style="flex:1;min-width:180px;text-align:center;padding:16px;">
+        <div style="width:48px;height:48px;border-radius:50%;background:#c0392b;color:#fff;
+          font-weight:800;font-size:1.1rem;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">2</div>
+        <h4 style="font-size:.88rem;font-weight:800;color:#7b1a14;margin-bottom:6px;">Set Up Your Class</h4>
+        <p style="font-size:.78rem;color:#5a2018;line-height:1.5;">Enter your school name, class, session and customise your subject list.</p>
+      </div>
+      <div style="flex:1;min-width:180px;text-align:center;padding:16px;">
+        <div style="width:48px;height:48px;border-radius:50%;background:#c0392b;color:#fff;
+          font-weight:800;font-size:1.1rem;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">3</div>
+        <h4 style="font-size:.88rem;font-weight:800;color:#7b1a14;margin-bottom:6px;">Enter Scores</h4>
+        <p style="font-size:.78rem;color:#5a2018;line-height:1.5;">Type in pupil names and scores. Averages, ranks and remarks update automatically.</p>
+      </div>
+      <div style="flex:1;min-width:180px;text-align:center;padding:16px;">
+        <div style="width:48px;height:48px;border-radius:50%;background:#c0392b;color:#fff;
+          font-weight:800;font-size:1.1rem;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">4</div>
+        <h4 style="font-size:.88rem;font-weight:800;color:#7b1a14;margin-bottom:6px;">Print &amp; Submit</h4>
+        <p style="font-size:.78rem;color:#5a2018;line-height:1.5;">Print your broadsheet and score distribution sheet ready for submission.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- AD SLOT 2 -->
+  <div id="ad-landing-mid" style="text-align:center;padding:10px 0;background:#fff;border-top:1px solid #eee;border-bottom:1px solid #eee;">
+    <!-- ── ADSTERRA MID-PAGE AD START ── -->
+    <!-- Paste your ad script here -->
+    <!-- ── ADSTERRA MID-PAGE AD END ── -->
+  </div>
+
+  <!-- WHO IS IT FOR -->
+  <div style="padding:48px 32px;background:#fff;">
+    <h2 style="text-align:center;font-size:1.4rem;font-weight:800;color:#7b1a14;margin-bottom:12px;">
+      Who Is This Tool For?
+    </h2>
+    <p style="text-align:center;color:#888;font-size:.85rem;max-width:600px;margin:0 auto 32px;line-height:1.6;">
+      Lagos Broadsheet is built for class teachers, head teachers, and examination officers
+      in Lagos State primary and pre-primary schools operating under the LASUBEB unified
+      examination system.
+    </p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;max-width:800px;margin:0 auto;">
+      <div style="border-radius:12px;padding:20px;background:#fdf2f1;border:1.5px solid #f5b7b1;text-align:center;">
+        <div style="font-size:2rem;margin-bottom:8px;">👩‍🏫</div>
+        <div style="font-weight:700;font-size:.88rem;color:#7b1a14;">Class Teachers</div>
+        <div style="font-size:.78rem;color:#888;margin-top:4px;">Record and manage your class results term by term</div>
+      </div>
+      <div style="border-radius:12px;padding:20px;background:#fdf2f1;border:1.5px solid #f5b7b1;text-align:center;">
+        <div style="font-size:2rem;margin-bottom:8px;">🏫</div>
+        <div style="font-weight:700;font-size:.88rem;color:#7b1a14;">Head Teachers</div>
+        <div style="font-size:.78rem;color:#888;margin-top:4px;">Admin panel to manage all teacher accounts in your school</div>
+      </div>
+      <div style="border-radius:12px;padding:20px;background:#fdf2f1;border:1.5px solid #f5b7b1;text-align:center;">
+        <div style="font-size:2rem;margin-bottom:8px;">📋</div>
+        <div style="font-weight:700;font-size:.88rem;color:#7b1a14;">Exam Officers</div>
+        <div style="font-size:.78rem;color:#888;margin-top:4px;">Generate official score distribution project sheets instantly</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div style="padding:56px 32px;background:linear-gradient(135deg,#c0392b,#7b1a14);text-align:center;">
+    <h2 style="color:#fff;font-size:1.5rem;font-weight:800;margin-bottom:10px;">
+      Ready to simplify your broadsheet work?
+    </h2>
+    <p style="color:rgba(255,255,255,.8);font-size:.9rem;margin-bottom:28px;">
+      Join teachers across Lagos State using this free digital broadsheet tool.
+    </p>
+    <button onclick="showLoginFromLanding()" style="background:#fff;color:#c0392b;border:none;
+      border-radius:10px;padding:14px 40px;font-family:'Outfit',sans-serif;font-size:1rem;
+      font-weight:800;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,.2);">
+      Create Free Account →
+    </button>
+  </div>
+
+  <!-- FOOTER -->
+  <footer style="background:#1a0a09;color:rgba(255,255,255,.6);padding:24px 32px;
+    display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;font-size:.75rem;">
+    <div>
+      <strong style="color:#fff;">Lagos Broadsheet</strong> — LASUBEB Digital Examination Tool<br>
+      <span style="font-size:.68rem;">© 2025 LagoBroadsheet.edu.ng. All rights reserved.</span>
+    </div>
+    <div style="display:flex;gap:16px;flex-wrap:wrap;">
+      <a href="about.html"   style="color:rgba(255,255,255,.6);text-decoration:none;">About</a>
+      <a href="privacy.html" style="color:rgba(255,255,255,.6);text-decoration:none;">Privacy Policy</a>
+      <a href="contact.html" style="color:rgba(255,255,255,.6);text-decoration:none;">Contact Us</a>
+    </div>
+  </footer>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     AUTH SCREEN
+════════════════════════════════════════════════════ -->
+<div id="auth-screen" class="screen">
+  <div class="auth-card">
+    <div class="auth-logo">🏫</div>
+    <div class="auth-title">LASUBEB Broadsheet</div>
+    <div class="auth-sub">Lagos State Universal Basic Education Board</div>
+
+    <div id="auth-err"  class="auth-err"></div>
+    <div id="auth-info" class="auth-info"></div>
+
+    <!-- LOGIN -->
+    <div id="panel-login" class="auth-panel active">
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" id="login-email" placeholder="teacher@school.edu.ng">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="login-pwd" placeholder="••••••••">
+      </div>
+      <button class="auth-btn" onclick="doLogin()">Sign In →</button>
+      <div class="auth-switch">
+        <span class="auth-link" onclick="switchPanel('forgot')">Forgot password?</span>
+      </div>
+      <div class="auth-switch">
+        No account? <span class="auth-link" onclick="switchPanel('register')">Register here</span>
+      </div>
+    </div>
+
+    <!-- REGISTER -->
+    <div id="panel-register" class="auth-panel">
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" id="reg-email" placeholder="teacher@school.edu.ng">
+      </div>
+      <div class="form-group">
+        <label>Password (min 6 characters)</label>
+        <input type="password" id="reg-pwd" placeholder="••••••••">
+      </div>
+      <div class="form-group">
+        <label>Confirm Password</label>
+        <input type="password" id="reg-pwd2" placeholder="••••••••">
+      </div>
+      <div class="form-group">
+        <label>School Name (for password recovery)</label>
+        <input type="text" id="reg-sq" placeholder="e.g. St. Michael's Primary">
+        <div class="form-hint">⚠️ Remember this — it is used to recover your password.</div>
+      </div>
+      <button class="auth-btn" onclick="doRegister()">Create Account →</button>
+      <div class="auth-switch">
+        Already registered? <span class="auth-link" onclick="switchPanel('login')">Sign in</span>
+      </div>
+    </div>
+
+    <!-- FORGOT PASSWORD -->
+    <div id="panel-forgot" class="auth-panel">
+      <div id="forgot-step1">
+        <div class="step-label">🔑 Password Recovery — Step 1 of 3</div>
+        <div class="form-group">
+          <label>Your Email Address</label>
+          <input type="email" id="fgt-email" placeholder="teacher@school.edu.ng">
+        </div>
+        <button class="auth-btn" onclick="forgotStep1()">Next →</button>
+      </div>
+      <div id="forgot-step2" style="display:none">
+        <div class="step-label">🔑 Password Recovery — Step 2 of 3</div>
+        <div class="form-group">
+          <label>Enter Your School Name</label>
+          <input type="text" id="fgt-sq" placeholder="e.g. St. Michael's Primary">
+        </div>
+        <button class="auth-btn" onclick="forgotStep2()">Verify →</button>
+      </div>
+      <div id="forgot-step3" style="display:none">
+        <div class="step-label">🔑 Password Recovery — Step 3 of 3</div>
+        <div class="form-group">
+          <label>New Password (min 6 characters)</label>
+          <input type="password" id="fgt-newpwd" placeholder="••••••••">
+        </div>
+        <button class="auth-btn green" onclick="forgotStep3()">Reset Password ✓</button>
+      </div>
+      <div class="auth-switch" style="margin-top:14px">
+        <span class="auth-link" onclick="switchPanel('login')">← Back to login</span>
+      </div>
+    </div>
+
+    <div class="auth-hint-box">
+      Admin? Use <strong style="color:var(--red)">admin@lagosbroadsheet.edu.ng</strong>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     ADMIN SCREEN
+════════════════════════════════════════════════════ -->
+<div id="admin-screen" class="screen">
+  <header>
+    <span class="h-logo" onclick="goHome()" title="Go to Home" style="cursor:pointer;">🏫</span>
+    <div style="flex:1;min-width:0;cursor:pointer;" onclick="goHome()" title="Go to Home">
+      <div class="h-title">LASUBEB Broadsheet — Admin</div>
+      <div class="h-sub">Manage teacher accounts</div>
+    </div>
+    <div class="h-right">
+      <button class="btn-signout" onclick="doLogout()">Sign Out</button>
+    </div>
+  </header>
+  <div class="admin-wrap">
+    <div class="admin-card">
+      <h2>👩‍🏫 Registered Teachers</h2>
+      <div id="admin-list"></div>
+      <div id="admin-actions" class="admin-actions" style="display:none">
+        <div class="atitle">Actions for: <span id="admin-sel-email"></span></div>
+        <div id="admin-msg" class="admin-msg"></div>
+        <label style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--mid);display:block;margin-bottom:4px;">New Password</label>
+        <input type="password" id="admin-newpwd" class="admin-inp" placeholder="Enter new password…">
+        <div class="admin-row">
+          <button class="btn btn-red" style="flex:1" onclick="adminResetPwd()">🔑 Reset Password</button>
+          <button class="btn btn-out" onclick="adminDeleteAccount()">🗑️ Delete Account</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- ADSTERRA FOOTER -->
+  <div id="ad-footer">
+    <!-- ── ADSTERRA FOOTER AD START ── -->
+    <!-- Paste your Adsterra footer banner script here -->
+    <!-- ── ADSTERRA FOOTER AD END ── -->
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     BROADSHEET SCREEN
+════════════════════════════════════════════════════ -->
+<div id="bs-screen" class="screen">
+
+  <!-- Header -->
+  <header class="no-print">
+    <span class="h-logo" onclick="goHome()" title="Go to Home" style="cursor:pointer;">🏫</span>
+    <div style="flex:1;min-width:0;cursor:pointer;" onclick="goHome()" title="Go to Home">
+      <div class="h-title">LASUBEB Unified Examination Broadsheet</div>
+      <div class="h-sub">Lagos State Universal Basic Education Board</div>
+    </div>
+    <div class="h-right">
+      <span class="h-save" id="save-status">✅ Saved</span>
+      <div class="h-user" id="h-user-email"></div>
+      <button class="btn-signout" onclick="doLogout()">Sign Out</button>
+    </div>
+  </header>
+
+  <!-- Setup bar -->
+  <div class="setup-bar no-print">
+    <div class="sg">
+      <label>School Name</label>
+      <input type="text" id="schoolName" placeholder="e.g. St. Michael's Primary" style="width:100%" oninput="metaChange()">
+    </div>
+    <div class="sg">
+      <label>LGEA</label>
+      <input type="text" id="lgea" placeholder="e.g. Surulere" style="width:100%" oninput="metaChange()">
+    </div>
+    <div class="sg">
+      <label>Class</label>
+      <input type="text" id="className" placeholder="e.g. Basic 3A" style="width:100%" oninput="metaChange()">
+    </div>
+    <div class="sg">
+      <label>Session</label>
+      <input type="text" id="session" placeholder="2024/2025" style="width:100%" oninput="metaChange()">
+    </div>
+    <div class="sg">
+      <label>Term</label>
+      <div class="term-tabs">
+        <button class="ttab active" onclick="switchTerm(1)">1st Term</button>
+        <button class="ttab" onclick="switchTerm(2)">2nd Term</button>
+        <button class="ttab" onclick="switchTerm(3)">3rd Term</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Subjects bar -->
+  <div class="subj-bar no-print">
+    <span class="slbl" id="subj-count-lbl">📚 Subjects (11)</span>
+    <div id="chip-container"></div>
+    <div class="add-subj">
+      <input type="text" id="new-subj" placeholder="Add subject…" onkeydown="if(event.key==='Enter')addSubject()">
+      <button class="btn btn-red btn-sm" onclick="addSubject()">+ Add</button>
+    </div>
+    <button class="btn btn-out btn-sm" onclick="resetSubjects()">↺ Reset Default</button>
+  </div>
+
+  <!-- Term note -->
+  <div class="note-bar no-print" id="term-note"></div>
+
+  <!-- Action bar -->
+  <div class="action-bar no-print">
+    <button class="btn btn-red"  onclick="addRow()">➕ Add Pupil</button>
+    <button class="btn btn-out"  onclick="addRows(5)">➕ Add 5 Pupils</button>
+    <button class="btn btn-blue" onclick="window.print()">🖨️ Print Broadsheet</button>
+    <button class="btn btn-out" id="dist-toggle-btn" onclick="toggleDistribution()">📊 Show Distribution</button>
+    <button class="btn btn-out" id="attend-toggle-btn" onclick="toggleAttendedColumn()">📅 Show Terms Attended</button>
+    <a href="report.html" class="btn btn-gold" style="text-decoration:none;">📋 Open Report Sheet System</a>
+    <button class="btn btn-out" onclick="downloadExcel()">📥 Download Excel</button>
+    <button class="btn btn-out" onclick="downloadData()">⬇️ Download Backup</button>
+    <button class="btn btn-out" onclick="uploadData()">⬆️ Upload Backup</button>
+    <button class="btn btn-out" onclick="showChangePwd()">🔑 Change Password</button>
+    <div class="pcount" id="pcount">0 pupils</div>
+  </div>
+
+  <!-- ADSTERRA SIDEBAR placeholder -->
+  <div id="ad-sidebar">
+    <!-- ── ADSTERRA SIDEBAR AD START ── -->
+    <!-- Paste your Adsterra 300x250 script here -->
+    <!-- ── ADSTERRA SIDEBAR AD END ── -->
+  </div>
+
+  <!-- Table -->
+  <div id="scroll-hint" style="text-align:center;padding:6px 16px;font-size:.73rem;
+    color:#b7860b;background:#fffbf0;border-bottom:1px solid #f5e5b0;display:none;">
+    👉 Swipe left / right to see all subjects
+  </div>
+  <div class="table-wrap">
+    <table id="bs-table">
+      <thead><tr id="thead-row"></tr></thead>
+      <tbody id="tbody"></tbody>
+      <tfoot><tr><td id="tfoot-cell" colspan="10"></td></tr></tfoot>
+    </table>
+  </div>
+
+  <!-- SCORE DISTRIBUTION SHEET -->
+  <div id="dist-section" style="display:none; padding: 0 0 32px; background:#fff;">
+
+    <!-- Distribution Header -->
+    <div class="no-print" style="background:#fdf2f1;border-top:2px solid #e8c5c2;border-bottom:1.5px solid #e8c5c2;
+      padding:10px 24px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;">
+      <span style="font-size:.67rem;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:#c0392b;">
+        📊 Score Distribution Sheet
+      </span>
+      <div style="display:flex;align-items:center;gap:6px;margin-left:8px;">
+        <label style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#5a2018;">Level:</label>
+        <select id="dist-level" onchange="renderDistribution()"
+          style="font-family:'Outfit',sans-serif;font-size:.85rem;font-weight:700;
+          border:1.5px solid #e8c5c2;border-radius:8px;padding:6px 10px;
+          color:#2c0f0d;background:#fff;outline:none;cursor:pointer;">
+          <option value="PRIMARY">PRIMARY</option>
+          <option value="NURSERY">NURSERY</option>
+          <option value="KINDERGARTEN">KINDERGARTEN</option>
+        </select>
+      </div>
+      <div style="font-size:.75rem;color:#aaa;margin-left:8px;">
+        Auto-calculated from scores above. Updates when you leave a score cell.
+      </div>
+      <button class="btn btn-blue no-print" onclick="window.print()" style="margin-left:auto;padding:6px 14px;font-size:.78rem;">
+        🖨️ Print Distribution
+      </button>
+    </div>
+
+    <!-- Distribution Table -->
+    <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:8px;">
+      <div id="dist-print-header" style="display:none;text-align:center;padding:14px 0 4px;font-family:'Outfit',sans-serif;">
+        <div style="font-size:1rem;font-weight:800;color:#7b1a14;">LAGOS STATE GOVERNMENT</div>
+        <div style="font-size:.82rem;font-weight:600;">Lagos State Universal Basic Education Board</div>
+        <div style="font-size:.78rem;">........... Term Unified Examination Project Sheet</div>
+        <div style="font-size:.78rem;font-weight:700;" id="dist-lga-print"></div>
+        <div style="font-size:.82rem;font-weight:800;margin-top:2px;" id="dist-level-print">PRIMARY</div>
+        <div style="font-size:.75rem;margin-top:4px;">Name of School: <span id="dist-school-print"></span>
+          &nbsp;&nbsp; Class: <span id="dist-class-print"></span>
+          &nbsp;&nbsp; Session: <span id="dist-session-print"></span>
+        </div>
+      </div>
+
+      <table id="dist-table" style="border-collapse:collapse;font-size:.76rem;min-width:100%;white-space:nowrap;margin-top:0;">
+        <thead id="dist-thead"></thead>
+        <tbody id="dist-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ADSTERRA FOOTER -->
+  <div id="ad-footer-bs">
+    <!-- ── ADSTERRA FOOTER AD START ── -->
+    <!-- Paste your Adsterra footer banner script here -->
+    <!-- ── ADSTERRA FOOTER AD END ── -->
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════════════════ -->
+<script>
+// ── CONSTANTS ────────────────────────────────────────────────
+var ADMIN_EMAIL    = 'admin@lagosbroadsheet.edu.ng';
+var ADMIN_PASSWORD = 'Admin@1234';
+var USERS_KEY      = 'lasubeb_users_v1';
+var SESSION_KEY    = 'lasubeb_session_v1';
+var DEFAULT_SUBJECTS = [
+  'Maths / Number Work','English / Letter Work','Quantitative',
+  'V. Reasoning / Reading','BST','Yoruba',
+  'CRS / IRS / Health Habit','CCA / Drawing',
+  'History / Civic Edu.','PVS / Physical Dev.','NVE / Social Habit'
+];
+
+// ── STATE ────────────────────────────────────────────────────
+var currentUser = null;
+var currentTerm = 1;
+var attendColVisible = false; // Terms Attended column — hidden by default (mobile-first)
+var subjects    = DEFAULT_SUBJECTS.slice();
+var rows        = [];          // [{id,name,adm,status,scores:{1:{},2:{},3:{}},bf2,bf3,rank}]
+var saveTimer   = null;
+var selectedAdminEmail = '';
+
+// ── HELPERS ──────────────────────────────────────────────────
+function uid() { return Math.random().toString(36).slice(2,9) + Date.now().toString(36); }
+
+function hashPwd(p) {
+  var h = 5381;
+  for (var i = 0; i < p.length; i++) h = ((h << 5) + h) ^ p.charCodeAt(i);
+  return (h >>> 0).toString(16);
+}
+
+function isValidEmail(e) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
+
+function ordinal(n) {
+  if (n === null || n === undefined) return '—';
+  var v = n % 100, s = ['th','st','nd','rd'];
+  return n + (s[(v-20)%10] || s[v] || s[0]);
+}
+
+function getRemarks(avg, absentThisTermOnly) {
+  if (avg === null || avg === undefined) return { label:'Absent', cls:'rmk-absent' };
+  if (absentThisTermOnly) {
+    // Pupil missed only THIS term but has a carried-forward average from earlier terms.
+    return { label: (avg<50?'Failed':'Passed') + ' (Absent this term)', cls: avg<50?'rmk-failed':'rmk-passed' };
+  }
+  if (avg < 50) return { label:'Failed', cls:'rmk-failed' };
+  return { label:'Passed', cls:'rmk-passed' };
+}
+
+function dataKey(email) {
+  return 'lasubeb_data_' + email.replace(/[^a-z0-9]/gi,'_');
+}
+
+// ── STORAGE ──────────────────────────────────────────────────
+function lsGet(key) {
+  try { var v = localStorage.getItem(key); return v ? JSON.parse(v) : null; } catch(e) { return null; }
+}
+function lsSet(key, val) {
+  try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) {}
+}
+
+// ── TOAST ────────────────────────────────────────────────────
+var toastTimer = null;
+function showToast(msg, type) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'show ' + (type || 'info');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function() { t.className = ''; }, 2800);
+}
+
+// ── SCREEN SWITCHER ──────────────────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
+  var el = document.getElementById(id);
+  el.classList.add('active');
+  if (id === 'auth-screen') el.style.display = 'flex';
+  else el.style.display = 'block';
+}
+
+// ── AUTH PANELS ──────────────────────────────────────────────
+function switchPanel(p) {
+  document.querySelectorAll('.auth-panel').forEach(function(x) { x.classList.remove('active'); });
+  document.getElementById('panel-' + p).classList.add('active');
+  clearAuthMsg();
+  // reset forgot steps
+  if (p === 'forgot') {
+    document.getElementById('forgot-step1').style.display = 'block';
+    document.getElementById('forgot-step2').style.display = 'none';
+    document.getElementById('forgot-step3').style.display = 'none';
+  }
+}
+
+function setAuthErr(msg)  { var e=document.getElementById('auth-err');  e.textContent=msg; e.style.display='block'; }
+function setAuthInfo(msg) { var e=document.getElementById('auth-info'); e.textContent=msg; e.style.display='block'; }
+function clearAuthMsg()   {
+  document.getElementById('auth-err').style.display='none';
+  document.getElementById('auth-info').style.display='none';
+}
+
+// ── LOGIN ────────────────────────────────────────────────────
+function doLogin() {
+  clearAuthMsg();
+  var email = document.getElementById('login-email').value.trim().toLowerCase();
+  var pwd   = document.getElementById('login-pwd').value;
+  if (!isValidEmail(email)) { setAuthErr('Enter a valid email address.'); return; }
+  if (!pwd) { setAuthErr('Enter your password.'); return; }
+
+  // admin
+  if (email === ADMIN_EMAIL && pwd === ADMIN_PASSWORD) {
+    currentUser = { email: ADMIN_EMAIL, name: 'Administrator', isAdmin: true };
+    lsSet(SESSION_KEY, currentUser);
+    showToast('✅ Welcome, Administrator!', 'success');
+    setTimeout(function() { loadAdmin(); }, 600);
+    return;
+  }
+
+  var users = lsGet(USERS_KEY) || {};
+  var u = users[email];
+  if (!u) { setAuthErr('No account found with this email.'); return; }
+  if (u.pwdHash !== hashPwd(pwd)) { setAuthErr('Incorrect password.'); return; }
+  currentUser = { email: email, name: u.name, isAdmin: false };
+  lsSet(SESSION_KEY, currentUser);
+  showToast('✅ Login successful! Welcome, ' + (u.name || email.split('@')[0]) + '.', 'success');
+  setTimeout(function() { loadBroadsheet(); }, 700);
+}
+
+// ── REGISTER ─────────────────────────────────────────────────
+function doRegister() {
+  clearAuthMsg();
+  var email = document.getElementById('reg-email').value.trim().toLowerCase();
+  var pwd   = document.getElementById('reg-pwd').value;
+  var pwd2  = document.getElementById('reg-pwd2').value;
+  var sq    = document.getElementById('reg-sq').value.trim();
+  if (!isValidEmail(email)) { setAuthErr('Enter a valid email address.'); return; }
+  if (!pwd || pwd.length < 6) { setAuthErr('Password must be at least 6 characters.'); return; }
+  if (pwd !== pwd2) { setAuthErr('Passwords do not match.'); return; }
+  if (!sq) { setAuthErr('Enter your school name for password recovery.'); return; }
+  if (email === ADMIN_EMAIL) { setAuthErr('This email is reserved.'); return; }
+
+  var users = lsGet(USERS_KEY) || {};
+  if (users[email]) { setAuthErr('An account with this email already exists.'); return; }
+  users[email] = { name: email.split('@')[0], pwdHash: hashPwd(pwd), sq: sq.toLowerCase() };
+  lsSet(USERS_KEY, users);
+  setAuthInfo('Account created! You can now log in.');
+  showToast('🎉 Account created! Please sign in.', 'success');
+  switchPanel('login');
+  document.getElementById('reg-pwd').value = '';
+  document.getElementById('reg-pwd2').value = '';
+  document.getElementById('reg-sq').value = '';
+}
+
+// ── FORGOT PASSWORD ──────────────────────────────────────────
+var forgotEmail = '';
+function forgotStep1() {
+  clearAuthMsg();
+  var email = document.getElementById('fgt-email').value.trim().toLowerCase();
+  if (!isValidEmail(email)) { setAuthErr('Enter a valid email address.'); return; }
+  var users = lsGet(USERS_KEY) || {};
+  if (!users[email]) { setAuthErr('No account found with this email.'); return; }
+  forgotEmail = email;
+  document.getElementById('forgot-step1').style.display = 'none';
+  document.getElementById('forgot-step2').style.display = 'block';
+}
+function forgotStep2() {
+  clearAuthMsg();
+  var ans = document.getElementById('fgt-sq').value.trim().toLowerCase();
+  var users = lsGet(USERS_KEY) || {};
+  var u = users[forgotEmail];
+  if (!u) { setAuthErr('Account not found.'); return; }
+  if (ans !== u.sq) { setAuthErr('Incorrect school name. Try again.'); return; }
+  document.getElementById('forgot-step2').style.display = 'none';
+  document.getElementById('forgot-step3').style.display = 'block';
+}
+function forgotStep3() {
+  clearAuthMsg();
+  var np = document.getElementById('fgt-newpwd').value;
+  if (!np || np.length < 6) { setAuthErr('Password must be at least 6 characters.'); return; }
+  var users = lsGet(USERS_KEY) || {};
+  users[forgotEmail].pwdHash = hashPwd(np);
+  lsSet(USERS_KEY, users);
+  setAuthInfo('Password reset successfully! Please log in.');
+  showToast('✅ Password reset! You can now log in.', 'success');
+  switchPanel('login');
+  document.getElementById('fgt-newpwd').value = '';
+  forgotEmail = '';
+}
+
+// ── LOGOUT ───────────────────────────────────────────────────
+function doLogout() {
+  lsSet(SESSION_KEY, null);
+  currentUser = null;
+  showScreen('auth-screen');
+  clearAuthMsg();
+  switchPanel('login');
+}
+
+// ── ADMIN ────────────────────────────────────────────────────
+function loadAdmin() {
+  showScreen('admin-screen');
+  renderAdminList();
+}
+
+function renderAdminList() {
+  var users = lsGet(USERS_KEY) || {};
+  var emails = Object.keys(users);
+  var list = document.getElementById('admin-list');
+  if (emails.length === 0) {
+    list.innerHTML = '<div style="color:#aaa;font-size:.85rem;">No teachers registered yet.</div>';
+    return;
+  }
+  list.innerHTML = emails.map(function(em) {
+    var u = users[em];
+    var sel = em === selectedAdminEmail ? ' selected' : '';
+    return '<div class="teacher-item' + sel + '" onclick="selectTeacher(\'' + em + '\')">'
+      + '<span>👤</span>'
+      + '<div><div class="t-name">' + (u.name||em) + '</div><div class="t-email">' + em + '</div></div>'
+      + (sel ? '<span class="t-sel-badge">Selected ✓</span>' : '')
+      + '</div>';
+  }).join('');
+}
+
+function selectTeacher(email) {
+  selectedAdminEmail = email;
+  document.getElementById('admin-sel-email').textContent = email;
+  document.getElementById('admin-actions').style.display = 'block';
+  var msg = document.getElementById('admin-msg');
+  msg.className = 'admin-msg'; msg.textContent = '';
+  document.getElementById('admin-newpwd').value = '';
+  renderAdminList();
+}
+
+function adminResetPwd() {
+  var msg = document.getElementById('admin-msg');
+  msg.className = 'admin-msg';
+  var np = document.getElementById('admin-newpwd').value;
+  if (!selectedAdminEmail) { msg.className='admin-msg error'; msg.textContent='Select a teacher first.'; return; }
+  if (!np || np.length < 6) { msg.className='admin-msg error'; msg.textContent='Password must be at least 6 characters.'; return; }
+  var users = lsGet(USERS_KEY) || {};
+  users[selectedAdminEmail].pwdHash = hashPwd(np);
+  lsSet(USERS_KEY, users);
+  document.getElementById('admin-newpwd').value = '';
+  msg.className = 'admin-msg success'; msg.textContent = '✅ Password reset successfully!';
+}
+
+function adminDeleteAccount() {
+  if (!selectedAdminEmail) return;
+  if (!confirm('Delete account for ' + selectedAdminEmail + '? All their data will be removed.')) return;
+  var users = lsGet(USERS_KEY) || {};
+  delete users[selectedAdminEmail];
+  lsSet(USERS_KEY, users);
+  try { localStorage.removeItem(dataKey(selectedAdminEmail)); } catch(e) {}
+  selectedAdminEmail = '';
+  document.getElementById('admin-actions').style.display = 'none';
+  var msg = document.getElementById('admin-msg');
+  msg.className = 'admin-msg success'; msg.textContent = '✅ Account deleted.';
+  renderAdminList();
+}
+
+// ── BROADSHEET LOAD ──────────────────────────────────────────
+function loadBroadsheet() {
+  showScreen('bs-screen');
+  document.getElementById('h-user-email').textContent = '👤 ' + currentUser.email;
+
+  var d = lsGet(dataKey(currentUser.email));
+  if (d) {
+    if (d.subjects)   subjects   = d.subjects;
+    else              subjects   = DEFAULT_SUBJECTS.slice();
+    if (d.rows)       rows       = d.rows;
+    else              rows       = makeBlankRows(10);
+    if (d.term)       currentTerm = d.term;
+    if (d.schoolName) document.getElementById('schoolName').value = d.schoolName;
+    if (d.lgea)       document.getElementById('lgea').value = d.lgea;
+    if (d.className)  document.getElementById('className').value = d.className;
+    if (d.session)    document.getElementById('session').value = d.session;
+    showToast('Data loaded ✓', 'success');
+  } else {
+    subjects = DEFAULT_SUBJECTS.slice();
+    rows = makeBlankRows(10);
+  }
+
+  updateTermTabs();
+  renderAll();
+  setTimeout(checkScrollHint, 100);
+}
+
+// ── SAVE ─────────────────────────────────────────────────────
+function triggerSave() {
+  document.getElementById('save-status').textContent = '💾 Saving…';
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(function() {
+    lsSet(dataKey(currentUser.email), {
+      subjects:   subjects,
+      rows:       rows,
+      term:       currentTerm,
+      schoolName: document.getElementById('schoolName').value,
+      lgea:       document.getElementById('lgea').value,
+      className:  document.getElementById('className').value,
+      session:    document.getElementById('session').value
+    });
+    document.getElementById('save-status').textContent = '✅ Saved';
+  }, 700);
+}
+
+function metaChange() { triggerSave(); updateFooter(); }
+
+// ── MAKE ROWS ────────────────────────────────────────────────
+function makeBlankRow() {
+  var scores = { 1:{}, 2:{}, 3:{} };
+  subjects.forEach(function(_,i) { scores[1][i]=''; scores[2][i]=''; scores[3][i]=''; });
+  return { id:uid(), name:'', adm:'', status:'F', scores:scores, bf2:'', bf3:'', rank:null, attended:{1:true,2:true,3:true} };
+}
+
+function makeBlankRows(n) {
+  var arr = [];
+  for (var i=0;i<n;i++) arr.push(makeBlankRow());
+  return arr;
+}
+
+// ── CALC ─────────────────────────────────────────────────────
+// Counts exactly how many of the terms BEFORE currentTerm the pupil actually
+// attended, using the explicit Terms Attended checkboxes (T1/T2/T3).
+// This replaces guessing — the teacher tells us directly.
+function countPriorAttendedTerms(r) {
+  if (!r.attended) return currentTerm - 1; // safety fallback for old rows without the field
+  var count = 0;
+  for (var t = 1; t < currentTerm; t++) {
+    if (r.attended[t] !== false) count++; // default true unless explicitly unticked
+  }
+  return count;
+}
+
+function calcRow(r) {
+  var sc = r.scores[currentTerm] || {};
+  var tot=0, filledCount=0;
+  subjects.forEach(function(_,j) {
+    var v = parseFloat(sc[j]);
+    if (!isNaN(v)) { tot+=v; filledCount++; }
+  });
+
+  // B/F only applies to terms 2 and 3
+  var bfRaw = currentTerm===2 ? r.bf2 : r.bf3;
+  var bfVal = (currentTerm>1 && bfRaw!=='' && bfRaw!==null && bfRaw!==undefined && !isNaN(parseFloat(bfRaw)))
+    ? parseFloat(bfRaw) : null;
+
+  // Is this pupil marked as NOT attending the current term? (via Terms Attended checkboxes)
+  var markedAbsentThisTerm = r.attended && r.attended[currentTerm]===false;
+
+  if (filledCount===0) {
+    // No scores entered THIS term. Two possibilities:
+    if (bfVal===null) {
+      // No B/F either — this pupil has no record at all (new/absent from the start). Fully Absent.
+      return { tot:null, gt:null, avg:null, filledCount:0, absentThisTermOnly:false };
+    }
+    // B/F IS present — pupil attended earlier term(s) but missed only THIS term.
+    // Use the EXACT number of prior terms actually attended (from Terms Attended
+    // checkboxes) instead of assuming every term before this one was attended.
+    var priorTerms = countPriorAttendedTerms(r);
+    var exactDiv = subjects.length * priorTerms;
+    return {
+      tot: null,
+      gt: bfVal,
+      avg: exactDiv>0 ? bfVal/exactDiv : null,
+      filledCount: 0,
+      absentThisTermOnly: true
+    };
+  }
+
+  var gt = bfVal!==null ? tot+bfVal : tot;
+  // Divisor = number of subjects ACTUALLY filled this term, multiplied by the
+  // EXACT number of terms represented (this term + however many prior terms
+  // were actually attended, from the Terms Attended checkboxes).
+  var div = filledCount;
+  if (currentTerm>1 && bfVal!==null) {
+    var priorAttended = countPriorAttendedTerms(r);
+    div = filledCount * (1 + priorAttended);
+  }
+  return { tot:tot, gt:gt, avg:gt/div, filledCount:filledCount, absentThisTermOnly:false };
+}
+
+// ── RANK + SORT ───────────────────────────────────────────────
+function rankAndSort() {
+  var items = rows.map(function(r) { return { r:r, avg:calcRow(r).avg }; });
+  items.sort(function(a,b) {
+    if (a.avg===null&&b.avg===null) return 0;
+    if (a.avg===null) return 1;
+    if (b.avg===null) return -1;
+    return b.avg-a.avg;
+  });
+  items.forEach(function(x,i) {
+    if (x.avg===null) { x.r.rank=null; return; }
+    if (i>0 && items[i-1].avg!==null && x.avg===items[i-1].avg) x.r.rank=items[i-1].r.rank;
+    else x.r.rank=i+1;
+  });
+  rows = items.map(function(x) { return x.r; });
+}
+
+// ── RENDER ALL ───────────────────────────────────────────────
+function renderAll() {
+  rankAndSort();
+  renderChips();
+  renderHeader();
+  renderBody();
+  updateFooter();
+  updateNote();
+  updateCount();
+  renderDistribution();
+}
+
+// ── CHIPS ────────────────────────────────────────────────────
+function renderChips() {
+  var c = document.getElementById('chip-container');
+  c.innerHTML = '';
+  subjects.forEach(function(s,i) {
+    var d = document.createElement('div');
+    d.className = 'chip';
+    d.draggable = true;
+    d.dataset.idx = i;
+
+    var upBtn   = i>0 ? '<button class="chip-move-btn" onclick="event.stopPropagation();reorderSubject('+i+','+(i-1)+')" title="Move left">◀</button>' : '';
+    var downBtn = i<subjects.length-1 ? '<button class="chip-move-btn" onclick="event.stopPropagation();reorderSubject('+i+','+(i+1)+')" title="Move right">▶</button>' : '';
+
+    d.innerHTML = '<span class="chip-drag-handle" title="Drag to reorder">⠿</span>'
+      + escHtml(s)
+      + upBtn + downBtn
+      + '<button class="chip-rm" onclick="removeSubject('+i+')" title="Remove">×</button>';
+
+    d.addEventListener('dragstart', function(e){
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', String(i));
+      d.classList.add('dragging');
+    });
+    d.addEventListener('dragover', function(e){
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      document.querySelectorAll('.chip').forEach(function(ch){ ch.classList.remove('drag-over'); });
+      d.classList.add('drag-over');
+    });
+    d.addEventListener('drop', function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      document.querySelectorAll('.chip').forEach(function(ch){ ch.classList.remove('drag-over'); });
+      var fromIdx = parseInt(e.dataTransfer.getData('text/plain'), 10);
+      var toIdx = parseInt(d.dataset.idx, 10);
+      if(!isNaN(fromIdx) && fromIdx!==toIdx) reorderSubject(fromIdx, toIdx);
+    });
+    d.addEventListener('dragend', function(){
+      document.querySelectorAll('.chip').forEach(function(ch){ ch.classList.remove('dragging'); ch.classList.remove('drag-over'); });
+    });
+
+    c.appendChild(d);
+  });
+  document.getElementById('subj-count-lbl').textContent = '📚 Subjects (' + subjects.length + ')';
+}
+
+// Moves the subject at fromIdx to sit at toIdx, and moves the matching score
+// column for every pupil in EVERY term (1st, 2nd, 3rd) so scores stay attached
+// to the correct subject after the move.
+function reorderSubject(fromIdx, toIdx){
+  if(fromIdx===toIdx) return;
+  var movedName = subjects[fromIdx];
+
+  var newSubjects = subjects.slice();
+  var moved = newSubjects.splice(fromIdx, 1)[0];
+  newSubjects.splice(toIdx, 0, moved);
+
+  rows.forEach(function(r){
+    [1,2,3].forEach(function(t){
+      var oldScores = r.scores[t] || {};
+      var newScores = {};
+      newSubjects.forEach(function(name, newIdx){
+        var oldIdx = subjects.indexOf(name);
+        newScores[newIdx] = (oldIdx!==-1 && oldScores[oldIdx]!==undefined) ? oldScores[oldIdx] : '';
+      });
+      r.scores[t] = newScores;
+    });
+  });
+
+  subjects = newSubjects;
+  renderAll();
+  triggerSave();
+  showToast('"'+movedName+'" moved successfully','success');
+}
+
+// ── HEADER ROW ───────────────────────────────────────────────
+function renderHeader() {
+  var tr = document.getElementById('thead-row');
+  var h = '<th class="th-fixed th-sn no-print">S/N</th>'
+    + '<th class="th-fixed th-nm">Name of Pupils</th>'
+    + '<th class="th-fixed th-adm">Adm. No.</th>'
+    + '<th class="th-fixed th-st">Status</th>';
+  if (attendColVisible) {
+    h += '<th class="th-fixed th-attend" title="Tick which terms this pupil actually attended. Used to calculate an accurate average if they are absent this term.">Terms<br>Attended</th>';
+  }
+  subjects.forEach(function(s) {
+    h += '<th><div class="rot-wrap"><span>' + escHtml(s) + '</span></div></th>';
+  });
+  // B/F column always visible on all terms
+  h += '<th><div class="rot-wrap"><span>B/F (Brought Fwd)</span></div></th>';
+  ['TOTAL','GRAND TOTAL','AVERAGE %','POSITION','REMARKS'].forEach(function(lbl) {
+    h += '<th><div class="rot-wrap"><span>' + lbl + '</span></div></th>';
+  });
+  h += '<th class="th-fixed th-del no-print">Del</th>';
+  tr.innerHTML = h;
+}
+
+// ── BODY ─────────────────────────────────────────────────────
+function renderBody() {
+  var tb = document.getElementById('tbody');
+  tb.innerHTML = '';
+
+  rows.forEach(function(r, idx) {
+    var c   = calcRow(r);
+    var rmk = getRemarks(c.avg, c.absentThisTermOnly);
+    var pos = (r.rank!==null&&r.rank!==undefined) ? ordinal(r.rank) : '—';
+    var posClass = r.rank===1?'td-pos pos-1':r.rank===2?'td-pos pos-2':r.rank===3?'td-pos pos-3':'td-pos';
+    var rowClass = r.rank===1?'rank-1':r.rank===2?'rank-2':r.rank===3?'rank-3':idx%2===0?'row-even':'row-odd';
+
+    var tr = document.createElement('tr');
+    tr.className = rowClass;
+    tr.dataset.id = r.id;
+
+    var cells = '';
+
+    // S/N
+    cells += '<td class="td-sn no-print">' + (idx+1) + '</td>';
+
+    // Name
+    cells += '<td class="td-nm">'
+      + '<input class="cell-inp" data-type="name" value="' + escHtml(r.name) + '" placeholder="Pupil name…"'
+      + ' oninput="storeField(\'' + r.id + '\',\'name\',this.value)"'
+      + ' onblur="setField(\'' + r.id + '\',\'name\',this.value)"'
+      + ' onkeydown="handleCellKey(event,this)">'
+      + '</td>';
+
+    // Adm
+    cells += '<td>'
+      + '<input class="cell-adm" data-type="adm" value="' + escHtml(r.adm) + '" placeholder="ADM#"'
+      + ' oninput="storeField(\'' + r.id + '\',\'adm\',this.value)"'
+      + ' onblur="setField(\'' + r.id + '\',\'adm\',this.value)"'
+      + ' onkeydown="handleCellKey(event,this)">'
+      + '</td>';
+
+    // Status
+    var stColor = r.status==='F' ? 'color:var(--green)' : 'color:var(--gold)';
+    cells += '<td>'
+      + '<select class="cell-st" style="' + stColor + '" onchange="setStatus(\'' + r.id + '\',this)">'
+      + '<option value="F"' + (r.status==='F'?' selected':'') + '>F</option>'
+      + '<option value="R"' + (r.status==='R'?' selected':'') + '>R</option>'
+      + '</select></td>';
+
+    // Terms Attended — only rendered when the column is toggled visible
+    if (attendColVisible) {
+      if (!r.attended) r.attended = {1:true,2:true,3:true}; // safety for older rows
+      cells += '<td class="td-attend">'
+        + '<div class="attend-checks">'
+        + [1,2,3].map(function(t){
+            var checked = r.attended[t]!==false;
+            return '<label class="attend-check-item" title="Term '+t+'">'
+              + '<input type="checkbox" '+(checked?'checked':'')+' onchange="setAttended(\''+r.id+'\','+t+',this.checked)">'
+              + '<span>T'+t+'</span></label>';
+          }).join('')
+        + '</div></td>';
+    }
+
+    // Scores
+    subjects.forEach(function(_, j) {
+      var v = (r.scores[currentTerm] && r.scores[currentTerm][j]!==undefined) ? r.scores[currentTerm][j] : '';
+      var hv = v!=='' ? ' has-val' : '';
+      cells += '<td>'
+        + '<input type="number" inputmode="numeric" min="0" max="100" class="cell-sc' + hv + '" value="' + escHtml(String(v)) + '" placeholder="—"'
+        + ' data-row-id="' + r.id + '" data-subj="' + j + '" data-type="score"'
+        + ' oninput="handleScoreInput(this,' + j + ',\'' + r.id + '\')"'
+        + ' onblur="handleScoreBlur(this,' + j + ',\'' + r.id + '\')"'
+        + ' onkeydown="handleCellKey(event,this)">'
+        + '</td>';
+    });
+
+    // B/F — always shown; locked/greyed on 1st term, editable on 2nd and 3rd
+    if (currentTerm === 1) {
+      // Locked cell for 1st term — no input allowed, just a grey dash
+      cells += '<td class="td-bf-locked" style="background:rgba(0,0,0,.03);color:#ccc;font-size:.75rem;">—</td>';
+    } else {
+      var bfv = currentTerm===2 ? r.bf2 : r.bf3;
+      if (bfv===undefined||bfv===null) bfv='';
+      var bhv = bfv!=='' ? ' has-val' : '';
+      cells += '<td class="td-bf">'
+        + '<input type="number" inputmode="numeric" min="0" class="cell-bf' + bhv + '" value="' + escHtml(String(bfv)) + '" placeholder="—"'
+        + ' data-type="bf" onkeydown="handleCellKey(event,this)"'
+        + ' oninput="handleBFInput(this,\'' + r.id + '\')"'
+        + ' onblur="handleBFBlur(this,\'' + r.id + '\')">'
+        + '</td>';
+    }
+
+    // Computed cells
+    cells += '<td class="td-tot">' + (c.tot!==null ? c.tot : '—') + '</td>';
+    cells += '<td class="td-gt">'  + (c.gt!==null  ? c.gt  : '—') + '</td>';
+    cells += '<td class="td-avg">' + (c.avg!==null  ? c.avg.toFixed(2) : '—') + '</td>';
+    cells += '<td class="' + posClass + '">' + pos + '</td>';
+    cells += '<td class="td-rmk ' + rmk.cls + '">' + rmk.label + '</td>';
+
+    // Delete
+    cells += '<td class="no-print">'
+      + '<button class="btn btn-out" style="padding:2px 7px;font-size:.7rem;" onclick="deleteRow(\'' + r.id + '\')">✕</button>'
+      + '</td>';
+
+    tr.innerHTML = cells;
+    tb.appendChild(tr);
+  });
+}
+
+// ── FOOTER ───────────────────────────────────────────────────
+function updateFooter() {
+  var cols = 4 + (attendColVisible?1:0) + subjects.length + 1 + 5; // [attend] + BF column always present
+  var school = document.getElementById('schoolName').value || '___________';
+  var cls    = document.getElementById('className').value  || '_____';
+  var sess   = document.getElementById('session').value    || '___________';
+  var lgea   = document.getElementById('lgea').value       || '_____';
+  var termStr = ['','1st','2nd','3rd'][currentTerm] + ' Term';
+
+  var passed = 0, failed = 0, absent = 0;
+  rows.forEach(function(r) {
+    var c = calcRow(r);
+    if (c.avg===null) absent++;
+    else if (c.avg<50) failed++;
+    else passed++;
+  });
+
+  var fc = document.getElementById('tfoot-cell');
+  fc.setAttribute('colspan', cols + 1); // +1 for delete col
+  fc.textContent = 'School: ' + school + '  |  Class: ' + cls + '  |  Term: ' + termStr
+    + '  |  Session: ' + sess + '  |  LGEA: ' + lgea
+    + '  |  Total Pupils: ' + rows.filter(function(r){return r.name.trim()!=='';}).length
+    + '  |  Passed: ' + passed + '  |  Failed: ' + failed + '  |  Absent: ' + absent;
+}
+
+// ── NOTE ─────────────────────────────────────────────────────
+function updateNote() {
+  var n = subjects.length;
+  var notes = {
+    1: '1st Term: Average = Total ÷ number of subjects with scores entered (auto-detected). B/F column is locked this term.',
+    2: '2nd Term: B/F = 1st Term total. With B/F → average uses filled subjects × 2. Without B/F → uses only filled subjects this term.',
+    3: '3rd Term: B/F = Grand Total of 1st+2nd Terms. With B/F → average uses filled subjects × 3. Without B/F → uses only filled subjects this term.'
+  };
+  document.getElementById('term-note').innerHTML = '📋 ' + notes[currentTerm]
+    + ' &nbsp;|&nbsp; Remarks: <strong style="color:var(--green)">Passed</strong> = avg ≥ 50'
+    + ' &nbsp;|&nbsp; <strong style="color:var(--red)">Failed</strong> = avg &lt; 50'
+    + ' &nbsp;|&nbsp; <strong style="color:#888">Absent</strong> = no score entered';
+}
+
+// ── COUNT ────────────────────────────────────────────────────
+function updateCount() {
+  var filled = rows.filter(function(r){ return r.name.trim()!==''; }).length;
+  document.getElementById('pcount').textContent = filled + ' / ' + rows.length + ' pupils';
+}
+
+// ── TERM TABS ────────────────────────────────────────────────
+function updateTermTabs() {
+  document.querySelectorAll('.ttab').forEach(function(b, i) {
+    b.classList.toggle('active', i+1 === currentTerm);
+  });
+}
+
+function switchTerm(t) {
+  currentTerm = t;
+  updateTermTabs();
+  renderAll();
+  triggerSave();
+}
+
+// ── DATA MUTATIONS ───────────────────────────────────────────
+// Store only — no re-render (used during typing to keep keyboard open)
+function storeField(id, field, val) {
+  rows.forEach(function(r) { if (r.id === id) r[field] = val; });
+}
+
+// Full update — re-sort, refresh DOM, save (used on blur/leave)
+function setField(id, field, val) {
+  rows.forEach(function(r) { if (r.id===id) r[field]=val; });
+  rankAndSort();
+  refreshComputedCells();
+  updateFooter();
+  updateCount();
+  triggerSave();
+  renderDistribution();
+}
+
+function setStatus(id, sel) {
+  rows.forEach(function(r) { if (r.id===id) r.status=sel.value; });
+  sel.style.color = sel.value==='F' ? 'var(--green)' : 'var(--gold)';
+  triggerSave();
+}
+
+function setAttended(id, term, checked) {
+  rows.forEach(function(r) {
+    if (r.id===id) {
+      if (!r.attended) r.attended = {1:true,2:true,3:true};
+      r.attended[term] = checked;
+    }
+  });
+  // Recalculation needed since attendance affects the average — full refresh
+  rankAndSort();
+  refreshComputedCells();
+  updateFooter();
+  triggerSave();
+}
+
+function toggleAttendedColumn() {
+  attendColVisible = !attendColVisible;
+  var btn = document.getElementById('attend-toggle-btn');
+  btn.textContent = attendColVisible ? '📅 Hide Terms Attended' : '📅 Show Terms Attended';
+  renderAll();
+}
+
+function setScore(id, j, val) {
+  rows.forEach(function(r) {
+    if (r.id===id) {
+      if (!r.scores[currentTerm]) r.scores[currentTerm]={};
+      r.scores[currentTerm][j]=val;
+    }
+  });
+  rankAndSort();
+  refreshComputedCells();
+  updateFooter();
+  triggerSave();
+  renderDistribution();
+}
+
+function setBF(id, val) {
+  var key = currentTerm===2 ? 'bf2' : 'bf3';
+  rows.forEach(function(r) { if (r.id===id) r[key]=val; });
+  rankAndSort();
+  refreshComputedCells();
+  updateFooter();
+  triggerSave();
+}
+
+// Refresh only computed columns + row order without full re-render (preserves focus)
+function refreshComputedCells() {
+  var tb = document.getElementById('tbody');
+  var trs = tb.querySelectorAll('tr');
+  // BF column always present — offset is fixed
+  // reorder rows in DOM to match sorted rows array
+  rows.forEach(function(r, idx) {
+    var tr = tb.querySelector('tr[data-id="'+r.id+'"]');
+    if (!tr) return;
+    tb.appendChild(tr); // moves to correct order
+
+    var c   = calcRow(r);
+    var rmk = getRemarks(c.avg, c.absentThisTermOnly);
+    var pos = (r.rank!==null&&r.rank!==undefined) ? ordinal(r.rank) : '—';
+    var posClass = r.rank===1?'td-pos pos-1':r.rank===2?'td-pos pos-2':r.rank===3?'td-pos pos-3':'td-pos';
+    var rowClass = r.rank===1?'rank-1':r.rank===2?'rank-2':r.rank===3?'rank-3':idx%2===0?'row-even':'row-odd';
+    tr.className = rowClass;
+
+    // update S/N
+    var snCell = tr.querySelector('.td-sn');
+    if (snCell) snCell.textContent = idx+1;
+
+    // find computed tds: tot, gt, avg, pos, rmk
+    // They are after all score + bf cells
+    var allTds = tr.querySelectorAll('td');
+    var baseOffset = 4 + (attendColVisible?1:0) + subjects.length + 1; // sn,nm,adm,st,[attend] + scores + bf (always present)
+    var totTd = allTds[baseOffset];
+    var gtTd  = allTds[baseOffset+1];
+    var avgTd = allTds[baseOffset+2];
+    var posTd = allTds[baseOffset+3];
+    var rmkTd = allTds[baseOffset+4];
+
+    if (totTd) totTd.textContent = c.tot!==null ? c.tot  : '—';
+    if (gtTd)  gtTd.textContent  = c.gt!==null  ? c.gt   : '—';
+    if (avgTd) avgTd.textContent = c.avg!==null  ? c.avg.toFixed(2) : '—';
+    if (posTd) { posTd.textContent=pos; posTd.className=posClass; }
+    if (rmkTd) { rmkTd.textContent=rmk.label; rmkTd.className='td-rmk '+rmk.cls; }
+  });
+}
+
+// ── ADD / DELETE ROWS ────────────────────────────────────────
+function addRow() {
+  rows.push(makeBlankRow());
+  renderAll();
+  triggerSave();
+}
+
+function addRows(n) {
+  for (var i=0;i<n;i++) rows.push(makeBlankRow());
+  renderAll();
+  triggerSave();
+  showToast(n + ' rows added', 'success');
+}
+
+function deleteRow(id) {
+  if (rows.length <= 1) { showToast('Cannot delete the last row', 'error'); return; }
+  rows = rows.filter(function(r) { return r.id!==id; });
+  renderAll();
+  triggerSave();
+}
+
+// ── SUBJECTS ─────────────────────────────────────────────────
+function addSubject() {
+  var inp = document.getElementById('new-subj');
+  var v = inp.value.trim();
+  if (!v) return;
+  if (subjects.indexOf(v) !== -1) { showToast('Subject already exists', 'error'); return; }
+  subjects.push(v);
+  inp.value = '';
+  rows.forEach(function(r) {
+    [1,2,3].forEach(function(t) {
+      if (!r.scores[t]) r.scores[t]={};
+      r.scores[t][subjects.length-1]='';
+    });
+  });
+  renderAll();
+  triggerSave();
+  showToast('"' + v + '" added', 'success');
+}
+
+function removeSubject(idx) {
+  if (subjects.length <= 1) { showToast('Need at least 1 subject', 'error'); return; }
+  subjects.splice(idx,1);
+  rows.forEach(function(r) {
+    [1,2,3].forEach(function(t) {
+      var ns={};
+      subjects.forEach(function(_,ni) {
+        ns[ni] = r.scores[t] ? (r.scores[t][ni>=idx?ni+1:ni]||'') : '';
+      });
+      r.scores[t]=ns;
+    });
+  });
+  renderAll();
+  triggerSave();
+}
+
+function resetSubjects() {
+  if (!confirm('Reset subjects to default? All scores will be cleared.')) return;
+  subjects = DEFAULT_SUBJECTS.slice();
+  rows = makeBlankRows(rows.length || 10);
+  renderAll();
+  triggerSave();
+  showToast('Subjects reset to default', 'success');
+}
+
+// ── CELL NAVIGATION & SMART INPUT ───────────────────────────
+// Auto-advance after 2 digits; allow 3-digit (100) via backspace/edit
+// ── Called on every keystroke — ONLY updates data, NO DOM re-render ──
+function handleScoreInput(inp, subjIdx, rowId) {
+  var num = parseInt(inp.value, 10);
+
+  // Cap at 100 silently
+  if (!isNaN(num) && num > 100) {
+    inp.value = 100;
+    num = 100;
+  }
+
+  var strVal = isNaN(num) ? '' : String(num);
+
+  // Update data store directly — no rankAndSort, no DOM refresh
+  rows.forEach(function(r) {
+    if (r.id === rowId) {
+      if (!r.scores[currentTerm]) r.scores[currentTerm] = {};
+      r.scores[currentTerm][subjIdx] = strVal;
+    }
+  });
+  inp.classList.toggle('has-val', strVal !== '');
+
+  // Auto-advance: 20-99 after 2 digits, 100 immediately
+  // 10-19 waits for 3rd digit, 1-9 waits
+  if (!isNaN(num) && strVal !== '') {
+    if (num === 100 || (strVal.length === 2 && num > 19)) {
+      setTimeout(function() { moveFocus(inp, 'next'); }, 80);
+    }
+  }
+}
+
+// ── Called on blur — NOW do the sort + refresh safely ──────────────
+function handleScoreBlur(inp, subjIdx, rowId) {
+  var num = parseInt(inp.value, 10);
+  var strVal = isNaN(num) ? '' : String(Math.min(num, 100));
+  inp.value = strVal === '' ? '' : strVal;
+  // Full update: re-sort + refresh computed cells
+  setScore(rowId, subjIdx, strVal);
+}
+
+// ── Called on blur for B/F ──────────────────────────────────────────
+function handleBFBlur(inp, rowId) {
+  var num = parseFloat(inp.value);
+  var strVal = isNaN(num) ? '' : String(num);
+  rows.forEach(function(r) {
+    if (r.id === rowId) {
+      if (currentTerm === 2) r.bf2 = strVal;
+      else r.bf3 = strVal;
+    }
+  });
+  inp.classList.toggle('has-val', strVal !== '');
+  // Full update on blur
+  rankAndSort();
+  refreshComputedCells();
+  updateFooter();
+  triggerSave();
+  renderDistribution();
+}
+
+// ── Called on input for B/F — only stores, no re-render ────────────
+function handleBFInput(inp, rowId) {
+  var num = parseFloat(inp.value);
+  var strVal = isNaN(num) ? '' : String(num);
+  rows.forEach(function(r) {
+    if (r.id === rowId) {
+      if (currentTerm === 2) r.bf2 = strVal;
+      else r.bf3 = strVal;
+    }
+  });
+  inp.classList.toggle('has-val', inp.value !== '');
+}
+
+// Move focus to next/prev focusable cell input in same row or next row
+function handleCellKey(e, inp) {
+  if (e.key === 'Enter' || e.key === 'Tab') {
+    e.preventDefault();
+    moveFocus(inp, e.shiftKey ? 'prev' : 'next');
+  } else if (e.key === 'ArrowRight' && inp.selectionStart === inp.value.length) {
+    e.preventDefault(); moveFocus(inp, 'next');
+  } else if (e.key === 'ArrowLeft' && inp.selectionStart === 0) {
+    e.preventDefault(); moveFocus(inp, 'prev');
+  } else if (e.key === 'ArrowDown') {
+    e.preventDefault(); moveFocus(inp, 'down');
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault(); moveFocus(inp, 'up');
+  }
+}
+
+function getAllInputs() {
+  // Get all focusable inputs in the table in DOM order
+  return Array.from(document.querySelectorAll('#tbody input.cell-inp, #tbody input.cell-adm, #tbody input.cell-sc, #tbody input.cell-bf'));
+}
+
+function moveFocus(current, dir) {
+  var inputs = getAllInputs();
+  var idx = inputs.indexOf(current);
+  if (idx === -1) return;
+  var next;
+  if (dir === 'next') next = inputs[idx + 1];
+  else if (dir === 'prev') next = inputs[idx - 1];
+  else if (dir === 'down' || dir === 'up') {
+    // Count inputs per row to jump rows
+    var rowInputs = current.closest('tr') ? current.closest('tr').querySelectorAll('input.cell-inp, input.cell-adm, input.cell-sc, input.cell-bf').length : 1;
+    var jump = dir === 'down' ? rowInputs : -rowInputs;
+    next = inputs[idx + jump];
+  }
+  if (next) { next.focus(); next.select(); }
+}
+
+// ── DOWNLOAD / UPLOAD DATA ───────────────────────────────────
+function downloadExcel() {
+  try {
+    if (typeof XLSX === 'undefined') {
+      showToast('Excel library still loading — please wait a moment and try again', 'error');
+      return;
+    }
+
+    var hasBF   = currentTerm > 1;
+    var school  = (document.getElementById('schoolName').value || 'School').trim();
+    var cls     = (document.getElementById('className').value  || 'Class').trim();
+    var lgea    = (document.getElementById('lgea').value || '').trim();
+    var session = (document.getElementById('session').value || '').trim();
+    var termStr = ['', '1st', '2nd', '3rd'][currentTerm] + ' Term';
+
+    // ── Build header row ──
+    var headers = ['S/N', 'Name of Pupils', 'Adm. No.', 'Status'];
+    subjects.forEach(function(s) { headers.push(s); });
+    if (hasBF) headers.push('B/F');
+    headers.push('Total', 'Grand Total', 'Average %', 'Position', 'Remarks');
+
+    // ── Build data rows ──
+    var dataRows = [];
+    var sn = 0;
+    rows.forEach(function(r) {
+      if (!r.name || r.name.trim() === '') return; // skip blank rows
+      sn++;
+      var c   = calcRow(r);
+      var rmk = getRemarks(c.avg, c.absentThisTermOnly);
+      var row = [sn, r.name, r.adm || '', r.status];
+
+      subjects.forEach(function(_, j) {
+        var v = (r.scores[currentTerm] && r.scores[currentTerm][j] !== undefined) ? r.scores[currentTerm][j] : '';
+        row.push(v === '' ? '' : Number(v));
+      });
+
+      if (hasBF) {
+        var bfv = currentTerm === 2 ? r.bf2 : r.bf3;
+        row.push((bfv === '' || bfv === undefined || bfv === null) ? '' : Number(bfv));
+      }
+
+      row.push(c.tot !== null ? c.tot : '');
+      row.push(c.gt  !== null ? c.gt  : '');
+      row.push(c.avg !== null ? Number(c.avg.toFixed(2)) : '');
+      row.push((r.rank !== null && r.rank !== undefined) ? ordinal(r.rank) : '');
+      row.push(rmk.label);
+
+      dataRows.push(row);
+    });
+
+    if (dataRows.length === 0) {
+      showToast('Add at least one pupil with a name before exporting', 'error');
+      return;
+    }
+
+    // ── Build worksheet ──
+    var wsData = [
+      ['LAGOS STATE GOVERNMENT'],
+      ['Lagos State Universal Basic Education Board'],
+      [termStr + ' Unified Examination Broadsheet'],
+      ['School: ' + school, '', 'Class: ' + cls, '', 'LGEA: ' + lgea, '', 'Session: ' + session],
+      [],
+      headers
+    ].concat(dataRows);
+
+    var ws = XLSX.utils.aoa_to_sheet(wsData);
+
+    // ── Column widths ──
+    var colWidths = [{wch:5},{wch:22},{wch:10},{wch:8}];
+    subjects.forEach(function() { colWidths.push({wch:10}); });
+    if (hasBF) colWidths.push({wch:8});
+    colWidths.push({wch:8},{wch:12},{wch:10},{wch:10},{wch:10});
+    ws['!cols'] = colWidths;
+
+    // ── Merge title rows across all columns ──
+    var lastCol = headers.length - 1;
+    ws['!merges'] = [
+      { s:{r:0,c:0}, e:{r:0,c:lastCol} },
+      { s:{r:1,c:0}, e:{r:1,c:lastCol} },
+      { s:{r:2,c:0}, e:{r:2,c:lastCol} }
+    ];
+
+    // ── Build workbook ──
+    var wb = XLSX.utils.book_new();
+    var sheetName = termStr.replace(' ', '_').slice(0, 31); // Excel sheet name limit
+    XLSX.utils.book_append_sheet(wb, ws, sheetName);
+
+    // ── File name ──
+    var fileName = (school + '_' + cls + '_' + termStr + '_Broadsheet')
+      .replace(/[^a-zA-Z0-9_\-]/g, '_') + '.xlsx';
+
+    XLSX.writeFile(wb, fileName);
+    showToast('📊 Excel file downloaded!', 'success');
+  } catch (err) {
+    console.error('Excel export error:', err);
+    showToast('⚠️ Could not export Excel file: ' + err.message, 'error');
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  UNIFIED BACKUP — Broadsheet + Report Sheet in ONE file
+//  This is the single backup teachers need. It saves everything:
+//  broadsheet scores/totals/positions AND report sheet data
+//  (CA scores, comments, star ratings, attendance, school logo).
+// ═══════════════════════════════════════════════════════════
+function reportStorageKey(){
+  return 'lasubeb_report_' + currentUser.email.replace(/[^a-z0-9]/gi,'_');
+}
+
+function downloadData() {
+  var broadsheetData = {
+    subjects: subjects,
+    rows: rows,
+    term: currentTerm,
+    schoolName: document.getElementById('schoolName').value,
+    lgea: document.getElementById('lgea').value,
+    className: document.getElementById('className').value,
+    session: document.getElementById('session').value
+  };
+
+  // Pull in Report Sheet data too, if it exists, so ONE backup covers everything
+  var reportData = null;
+  try {
+    var raw = localStorage.getItem(reportStorageKey());
+    if (raw) reportData = JSON.parse(raw);
+  } catch(e) { /* no report sheet data yet — that's fine */ }
+
+  var payload = {
+    version: 2,
+    type: 'lagos-broadsheet-unified-backup',
+    exportedAt: new Date().toISOString(),
+    email: currentUser.email,
+    broadsheet: broadsheetData,
+    report: reportData // null if teacher never used the Report Sheet — that's OK
+  };
+
+  var blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  var cls = document.getElementById('className').value || 'broadsheet';
+  var term = ['','1st','2nd','3rd'][currentTerm] + '_Term';
+  a.download = cls.replace(/\s+/g,'_') + '_' + term + '_backup.json';
+  a.click();
+  showToast('✅ Backup downloaded — includes Broadsheet' + (reportData ? ' + Report Sheet' : '') + ' data', 'success');
+}
+
+function uploadData() {
+  var inp = document.createElement('input');
+  inp.type = 'file'; inp.accept = '.json';
+  inp.onchange = function(e) {
+    var file = e.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(ev) {
+      try {
+        var payload = JSON.parse(ev.target.result);
+
+        // Figure out what kind of backup this is:
+        //  - Unified backup: has "broadsheet" and/or "report" keys (either can be null)
+        //  - Old-style broadsheet-only backup: fields sit at the top level (subjects, rows, ...)
+        var isUnified = ('broadsheet' in payload) || ('report' in payload);
+
+        var bsData     = isUnified ? payload.broadsheet : payload;
+        var reportData = isUnified ? payload.report     : null;
+
+        var hasBS     = bsData && bsData.subjects && bsData.rows;
+        var hasReport = reportData && reportData.pupils;
+
+        if (!hasBS && !hasReport) {
+          showToast('Invalid backup file — no Broadsheet or Report Sheet data found', 'error');
+          return;
+        }
+
+        // Build a clear confirmation message describing exactly what will be restored
+        var parts = [];
+        if (hasBS)     parts.push('Broadsheet data');
+        if (hasReport) parts.push('Report Sheet data (pupils, CA scores, comments, logo)');
+        var msg = 'This will replace your current ' + parts.join(' AND ') + '. Continue?';
+        if (!confirm(msg)) return;
+
+        // Restore broadsheet — only if this file actually contains broadsheet data
+        if (hasBS) {
+          subjects = bsData.subjects;
+          rows     = bsData.rows;
+          if (bsData.term)       { currentTerm = bsData.term; updateTermTabs(); }
+          if (bsData.schoolName) document.getElementById('schoolName').value = bsData.schoolName;
+          if (bsData.lgea)       document.getElementById('lgea').value = bsData.lgea;
+          if (bsData.className)  document.getElementById('className').value = bsData.className;
+          if (bsData.session)    document.getElementById('session').value = bsData.session;
+          renderAll();
+          triggerSave();
+        }
+
+        // Restore report sheet data — only if this file actually contains report data
+        if (hasReport) {
+          try {
+            localStorage.setItem(reportStorageKey(), JSON.stringify(reportData));
+          } catch(err) { /* storage full or blocked */ }
+        }
+
+        showToast('✅ Restored ' + parts.join(' + '), 'success');
+      } catch(err) {
+        showToast('Could not read file. Make sure it is a valid backup.', 'error');
+      }
+    };
+    reader.readAsText(file);
+  };
+  inp.click();
+}
+
+// ── SELF-SERVICE PASSWORD RESET ──────────────────────────────
+function showChangePwd() {
+  document.getElementById('change-pwd-modal').style.display = 'flex';
+  document.getElementById('cp-cur').value = '';
+  document.getElementById('cp-new').value = '';
+  document.getElementById('cp-new2').value = '';
+  document.getElementById('cp-err').style.display = 'none';
+  document.getElementById('cp-ok').style.display = 'none';
+}
+function hideChangePwd() {
+  document.getElementById('change-pwd-modal').style.display = 'none';
+}
+function doChangePwd() {
+  var cur  = document.getElementById('cp-cur').value;
+  var np   = document.getElementById('cp-new').value;
+  var np2  = document.getElementById('cp-new2').value;
+  var errEl = document.getElementById('cp-err');
+  var okEl  = document.getElementById('cp-ok');
+  errEl.style.display = 'none'; okEl.style.display = 'none';
+  function showErr(m) { errEl.textContent = m; errEl.style.display = 'block'; }
+
+  var users = lsGet(USERS_KEY) || {};
+  var u = users[currentUser.email];
+  if (!u) { showErr('Account not found.'); return; }
+  if (u.pwdHash !== hashPwd(cur)) { showErr('Current password is incorrect.'); return; }
+  if (!np || np.length < 6) { showErr('New password must be at least 6 characters.'); return; }
+  if (np !== np2) { showErr('Passwords do not match.'); return; }
+  users[currentUser.email].pwdHash = hashPwd(np);
+  lsSet(USERS_KEY, users);
+  okEl.style.display = 'block';
+  setTimeout(hideChangePwd, 1800);
+  showToast('Password changed ✓', 'success');
+}
+
+// ═══════════════════════════════════════════════════════════
+//  SCORE DISTRIBUTION SHEET
+// ═══════════════════════════════════════════════════════════
+
+var distVisible = false;
+
+var SCORE_RANGES = [
+  { label:'0 - 9',   min:0,  max:9  },
+  { label:'10 - 19', min:10, max:19 },
+  { label:'20 - 29', min:20, max:29 },
+  { label:'30 - 39', min:30, max:39 },
+  { label:'40 - 49', min:40, max:49 },
+  { label:'50 - 59', min:50, max:59 },
+  { label:'60 - 69', min:60, max:69 },
+  { label:'70 - 79', min:70, max:79 },
+  { label:'80 - 89', min:80, max:89 },
+  { label:'90 - 100',min:90, max:100}
+];
+
+function toggleDistribution() {
+  distVisible = !distVisible;
+  var sec = document.getElementById('dist-section');
+  var btn = document.getElementById('dist-toggle-btn');
+  if (distVisible) {
+    sec.style.display = 'block';
+    btn.textContent = '📊 Hide Distribution';
+    renderDistribution();
+  } else {
+    sec.style.display = 'none';
+    btn.textContent = '📊 Show Distribution';
+  }
+}
+
+function renderDistribution() {
+  if (!distVisible) return;
+
+  var level     = (document.getElementById('dist-level') || {}).value || 'PRIMARY';
+  var school    = document.getElementById('schoolName').value || '___________';
+  var cls       = document.getElementById('className').value  || '_____';
+  var sess      = document.getElementById('session').value    || '___________';
+  var lgea      = document.getElementById('lgea').value       || '_____';
+  var termStr   = ['','1st','2nd','3rd'][currentTerm] + ' Term';
+
+  // Update print header values
+  var lp = document.getElementById('dist-lga-print');
+  if (lp) lp.textContent = lgea + ' Local Government Authority';
+  var lvp = document.getElementById('dist-level-print');
+  if (lvp) lvp.textContent = level;
+  var sp = document.getElementById('dist-school-print');
+  if (sp) sp.textContent = school;
+  var cp = document.getElementById('dist-class-print');
+  if (cp) cp.textContent = cls;
+  var ssp = document.getElementById('dist-session-print');
+  if (ssp) ssp.textContent = sess;
+
+  // ── Build distribution data ──────────────────────────────
+  // distData[subjIdx][rangeIdx] = count
+  var distData = [];
+  var absentCount = [];
+  var totalCount  = [];
+
+  // Count only named pupils (pupils with a name entered = registered pupils)
+  var namedRows = rows.filter(function(r) { return r.name && r.name.trim() !== ''; });
+
+  subjects.forEach(function(_, j) {
+    distData[j]    = SCORE_RANGES.map(function() { return 0; });
+    absentCount[j] = 0;
+    totalCount[j]  = namedRows.length; // total = all named pupils on the sheet
+
+    namedRows.forEach(function(r) {
+      var sc = r.scores[currentTerm] || {};
+      var v  = sc[j];
+      var hasScore = v !== '' && v !== null && v !== undefined && !isNaN(parseFloat(v));
+
+      if (!hasScore) {
+        // Named pupil has no score for this subject = ABSENT for this subject
+        absentCount[j]++;
+      } else {
+        var score = parseFloat(v);
+        SCORE_RANGES.forEach(function(range, ri) {
+          if (score >= range.min && score <= range.max) {
+            distData[j][ri]++;
+          }
+        });
+      }
+    });
+  });
+
+  // ── Render thead ─────────────────────────────────────────
+  var thead = document.getElementById('dist-thead');
+  var theadHtml = '<tr style="background:#c0392b;">'
+    + '<th style="' + distThFixed + ' min-width:28px;">S/N</th>'
+    + '<th style="' + distThFixed + ' min-width:160px;text-align:left;padding-left:12px;">SUBJECTS</th>';
+
+  SCORE_RANGES.forEach(function(r) {
+    theadHtml += '<th style="' + distThRot + '"><div style="' + distRotWrap + '"><span style="' + distRotSpan + '">' + r.label + '</span></div></th>';
+  });
+  theadHtml += '<th style="' + distThRot + '"><div style="' + distRotWrap + '"><span style="' + distRotSpan + ' font-weight:800;">NO. ABSENT</span></div></th>';
+  theadHtml += '<th style="' + distThRot + '"><div style="' + distRotWrap + '"><span style="' + distRotSpan + ' font-weight:800;">TOTAL</span></div></th>';
+  theadHtml += '</tr>';
+  thead.innerHTML = theadHtml;
+
+  // ── Render tbody ─────────────────────────────────────────
+  var tbody = document.getElementById('dist-tbody');
+  var tbodyHtml = '';
+
+  subjects.forEach(function(subj, j) {
+    var rowBg = j % 2 === 0 ? '#fff' : '#fdf7f7';
+    tbodyHtml += '<tr style="background:' + rowBg + ';">';
+    tbodyHtml += '<td style="' + distTd + ' color:#bbb;font-size:.68rem;">' + (j+1) + '</td>';
+    tbodyHtml += '<td style="' + distTd + ' text-align:left;padding-left:12px;font-weight:600;min-width:160px;">' + escHtml(subj) + '</td>';
+
+    distData[j].forEach(function(count, ri) {
+      var highlight = '';
+      if (count > 0) {
+        // colour-code ranges: 0-49 = warm, 50-69 = neutral, 70-100 = green
+        if (ri <= 4)      highlight = 'background:rgba(192,57,43,.06);color:#c0392b;';
+        else if (ri <= 6) highlight = 'background:rgba(183,134,11,.06);color:#b7860b;';
+        else              highlight = 'background:rgba(26,122,66,.06);color:#1a7a42;';
+      }
+      tbodyHtml += '<td style="' + distTd + highlight + ' font-family:monospace;font-weight:700;">'
+        + (count > 0 ? count : '—') + '</td>';
+    });
+
+    // Absent
+    tbodyHtml += '<td style="' + distTd + ' font-family:monospace;font-weight:700;color:#888;background:rgba(150,150,150,.05);">'
+      + (absentCount[j] > 0 ? absentCount[j] : '—') + '</td>';
+    // Total
+    tbodyHtml += '<td style="' + distTd + ' font-family:monospace;font-weight:800;color:#7b1a14;background:rgba(192,57,43,.08);">'
+      + totalCount[j] + '</td>';
+    tbodyHtml += '</tr>';
+  });
+
+  // ── TOTAL row ────────────────────────────────────────────
+  tbodyHtml += '<tr style="background:linear-gradient(90deg,rgba(192,57,43,.1),rgba(192,57,43,.04));">';
+  tbodyHtml += '<td style="' + distTd + '"></td>';
+  tbodyHtml += '<td style="' + distTd + ' text-align:left;padding-left:12px;font-weight:800;color:#7b1a14;font-size:.78rem;">TOTAL</td>';
+
+  SCORE_RANGES.forEach(function(_, ri) {
+    var colTotal = 0;
+    distData.forEach(function(subj) { colTotal += subj[ri]; });
+    tbodyHtml += '<td style="' + distTd + ' font-family:monospace;font-weight:800;color:#c0392b;">'
+      + (colTotal > 0 ? colTotal : '—') + '</td>';
+  });
+
+  var totalAbsent = absentCount.reduce(function(a,b){return a+b;},0);
+  var grandTotal  = totalCount.reduce(function(a,b){return a+b;},0);
+  tbodyHtml += '<td style="' + distTd + ' font-family:monospace;font-weight:800;color:#888;">'
+    + (totalAbsent>0?totalAbsent:'—') + '</td>';
+  tbodyHtml += '<td style="' + distTd + ' font-family:monospace;font-weight:800;color:#7b1a14;background:rgba(192,57,43,.1);">'
+    + grandTotal + '</td>';
+  tbodyHtml += '</tr>';
+
+  // ── Footer info row ───────────────────────────────────────
+  var totalCols = 2 + SCORE_RANGES.length + 2;
+  tbodyHtml += '<tr><td colspan="' + totalCols + '" style="background:linear-gradient(180deg,#7b1a14,#520f0a);'
+    + 'color:#fff;font-weight:700;font-size:.72rem;padding:8px 16px;">'
+    + level + ' &nbsp;|&nbsp; School: ' + escHtml(school)
+    + ' &nbsp;|&nbsp; Class: ' + escHtml(cls)
+    + ' &nbsp;|&nbsp; Term: ' + termStr
+    + ' &nbsp;|&nbsp; Session: ' + escHtml(sess)
+    + ' &nbsp;|&nbsp; LGEA: ' + escHtml(lgea)
+    + '</td></tr>';
+
+  tbody.innerHTML = tbodyHtml;
+}
+
+// Shared dist table styles (inline for print compatibility)
+var distThFixed = 'color:#fff;font-weight:700;font-size:.72rem;padding:8px 8px;border-right:1px solid rgba(255,255,255,.18);border-bottom:3px solid #7b1a14;vertical-align:middle;';
+var distThRot   = 'color:#fff;font-weight:700;padding:3px 2px 8px;border-right:1px solid rgba(255,255,255,.18);border-bottom:3px solid #7b1a14;vertical-align:bottom;';
+var distRotWrap = 'display:flex;align-items:flex-end;justify-content:center;height:80px;';
+var distRotSpan = 'writing-mode:vertical-rl;transform:rotate(180deg);font-size:.68rem;white-space:nowrap;display:block;';
+var distTd      = 'border-right:1px solid #e8c5c2;border-bottom:1px solid #e8c5c2;padding:5px 4px;text-align:center;vertical-align:middle;';
+
+// ── MISC ─────────────────────────────────────────────────────
+function escHtml(s) {
+  return String(s||'')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── RESPONSIVE HELPERS ──────────────────────────────────────
+function checkScrollHint() {
+  var hint = document.getElementById('scroll-hint');
+  if (!hint) return;
+  // Show scroll hint only on mobile/narrow screens
+  hint.style.display = window.innerWidth < 700 ? 'block' : 'none';
+}
+window.addEventListener('resize', checkScrollHint);
+
+// ── LANDING PAGE ─────────────────────────────────────────────
+function goHome() {
+  // If logged in — confirm before going back to landing
+  if (currentUser) {
+    // Just show landing without logging out
+    document.querySelectorAll('.screen').forEach(function(s) {
+      s.style.display = 'none'; s.classList.remove('active');
+    });
+    var landing = document.getElementById('landing-screen');
+    if (landing) { landing.style.display = 'block'; landing.classList.add('active'); }
+  } else {
+    // Not logged in — just show landing
+    var landing = document.getElementById('landing-screen');
+    if (landing) { landing.style.display = 'block'; landing.classList.add('active'); }
+    document.querySelectorAll('.screen:not(#landing-screen)').forEach(function(s) {
+      s.style.display = 'none'; s.classList.remove('active');
+    });
+  }
+  // Scroll to top
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function showLoginFromLanding() {
+  var landing = document.getElementById('landing-screen');
+  if (landing) { landing.style.display = 'none'; landing.classList.remove('active'); }
+  showScreen('auth-screen');
+}
+
+// ── INIT ─────────────────────────────────────────────────────
+(function init() {
+  var sess = lsGet(SESSION_KEY);
+  if (sess && sess.email) {
+    // Already logged in — skip landing page entirely
+    var landing = document.getElementById('landing-screen');
+    if (landing) { landing.style.display = 'none'; landing.classList.remove('active'); }
+    currentUser = sess;
+    if (sess.isAdmin) loadAdmin();
+    else loadBroadsheet();
+  } else {
+    // Not logged in — show landing page (already visible by default)
+    // auth-screen starts hidden
+  }
+})();
+</script>
+<!-- CHANGE PASSWORD MODAL -->
+<div id="change-pwd-modal" style="display:none;position:fixed;inset:0;z-index:9998;
+  background:rgba(0,0,0,.45);align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:16px;padding:36px;max-width:400px;width:90%;
+    box-shadow:0 8px 40px rgba(0,0,0,.2);border:1.5px solid var(--border);font-family:'Outfit',sans-serif;">
+    <div style="font-size:1rem;font-weight:800;color:var(--red2);margin-bottom:20px;">🔑 Change Password</div>
+    <div id="cp-err" style="display:none;background:#fdecea;color:var(--red);border-radius:8px;
+      padding:8px 12px;font-size:.8rem;margin-bottom:12px;font-weight:600;"></div>
+    <div id="cp-ok" style="display:none;background:#e8f5e9;color:var(--green);border-radius:8px;
+      padding:8px 12px;font-size:.8rem;margin-bottom:12px;font-weight:600;">✅ Password changed successfully!</div>
+    <div style="margin-bottom:12px;">
+      <label style="font-size:.63rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--mid);display:block;margin-bottom:4px;">Current Password</label>
+      <input type="password" id="cp-cur" placeholder="••••••••"
+        style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;
+        font-family:'Outfit',sans-serif;font-size:.88rem;outline:none;color:var(--text);"
+        onfocus="this.style.borderColor='var(--red)'" onblur="this.style.borderColor='var(--border)'">
+    </div>
+    <div style="margin-bottom:12px;">
+      <label style="font-size:.63rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--mid);display:block;margin-bottom:4px;">New Password (min 6 characters)</label>
+      <input type="password" id="cp-new" placeholder="••••••••"
+        style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;
+        font-family:'Outfit',sans-serif;font-size:.88rem;outline:none;color:var(--text);"
+        onfocus="this.style.borderColor='var(--red)'" onblur="this.style.borderColor='var(--border)'">
+    </div>
+    <div style="margin-bottom:20px;">
+      <label style="font-size:.63rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--mid);display:block;margin-bottom:4px;">Confirm New Password</label>
+      <input type="password" id="cp-new2" placeholder="••••••••"
+        style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;
+        font-family:'Outfit',sans-serif;font-size:.88rem;outline:none;color:var(--text);"
+        onfocus="this.style.borderColor='var(--red)'" onblur="this.style.borderColor='var(--border)'"
+        onkeydown="if(event.key==='Enter')doChangePwd()">
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button onclick="doChangePwd()" style="flex:1;padding:11px;background:var(--red);color:#fff;
+        border:none;border-radius:9px;font-family:'Outfit',sans-serif;font-size:.9rem;font-weight:800;cursor:pointer;">
+        Save New Password
+      </button>
+      <button onclick="hideChangePwd()" style="padding:11px 18px;background:#fff;color:var(--mid);
+        border:1.5px solid var(--border);border-radius:9px;font-family:'Outfit',sans-serif;
+        font-size:.9rem;font-weight:700;cursor:pointer;">Cancel</button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+// ── SERVICE WORKER REGISTRATION ──────────────────────────────
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('/service-worker.js')
+      .then(function(reg) {
+        console.log('[PWA] Service worker registered:', reg.scope);
+
+        // Check for updates every 60 seconds
+        setInterval(function() { reg.update(); }, 60000);
+
+        // Notify user when new version is available
+        reg.addEventListener('updatefound', function() {
+          var newWorker = reg.installing;
+          newWorker.addEventListener('statechange', function() {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              showToast('🔄 Update available — refresh to get the latest version', 'info');
+            }
+          });
+        });
+      })
+      .catch(function(err) {
+        console.warn('[PWA] Service worker registration failed:', err);
+      });
+  });
+}
+
+// ── PWA INSTALL PROMPT ────────────────────────────────────────
+var deferredPrompt = null;
+var pwaInstalled   = localStorage.getItem('pwa_installed') === 'true';
+var pwaDismissed   = localStorage.getItem('pwa_dismissed') === 'true';
+
+window.addEventListener('beforeinstallprompt', function(e) {
+  e.preventDefault();
+  deferredPrompt = e;
+  // Show banner only if not already installed and not recently dismissed
+  if (!pwaInstalled && !pwaDismissed) {
+    setTimeout(function() {
+      var banner = document.getElementById('pwa-banner');
+      if (banner) banner.style.display = 'flex';
+    }, 3000); // wait 3 seconds before showing
+  }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+  var installBtn = document.getElementById('pwa-install-btn');
+  if (installBtn) {
+    installBtn.addEventListener('click', function() {
+      if (!deferredPrompt) {
+        showToast('To install: tap your browser menu → "Add to Home Screen"', 'info');
+        return;
+      }
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then(function(result) {
+        if (result.outcome === 'accepted') {
+          localStorage.setItem('pwa_installed', 'true');
+          showToast('✅ LASUBEB Broadsheet installed! Find it on your home screen.', 'success');
+        }
+        dismissPWABanner();
+        deferredPrompt = null;
+      });
+    });
+  }
+});
+
+// Fired when app is installed
+window.addEventListener('appinstalled', function() {
+  localStorage.setItem('pwa_installed', 'true');
+  dismissPWABanner();
+  showToast('✅ App installed successfully!', 'success');
+  console.log('[PWA] App installed');
+});
+
+function dismissPWABanner() {
+  var banner = document.getElementById('pwa-banner');
+  if (banner) banner.style.display = 'none';
+  // Don't show again for 7 days
+  localStorage.setItem('pwa_dismissed', 'true');
+  setTimeout(function() { localStorage.removeItem('pwa_dismissed'); }, 7 * 24 * 60 * 60 * 1000);
+}
+
+// ── iOS INSTALL INSTRUCTIONS ──────────────────────────────────
+// iOS doesn't support beforeinstallprompt — show manual instructions
+var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+var isInStandaloneMode = window.navigator.standalone === true;
+if (isIOS && !isInStandaloneMode && !pwaInstalled && !pwaDismissed) {
+  setTimeout(function() {
+    var banner = document.getElementById('pwa-banner');
+    var installBtn = document.getElementById('pwa-install-btn');
+    if (banner && installBtn) {
+      installBtn.textContent = '📲 How to Install';
+      installBtn.onclick = function() {
+        showToast('On iPhone/iPad: tap the Share button (□↑) then "Add to Home Screen"', 'info');
+        setTimeout(function() { dismissPWABanner(); }, 6000);
+      };
+      banner.style.display = 'flex';
+    }
+  }, 3000);
+}
+</script>
+</body>
+</html>
